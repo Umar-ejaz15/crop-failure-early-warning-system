@@ -1,0 +1,35 @@
+// Prisma schema for NeonDB Postgres
+// Models: CheckIn (with weather, responses, risk, alerts, suggestions)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model CheckIn {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  farmerId     String
+  cropType     String
+  currentStage String
+  date         DateTime
+  responses    Json
+  weather      Weather  @relation(fields: [weatherId], references: [id])
+  weatherId    String
+  riskScore    Float
+  alerts       Json
+  suggestions  String?
+}
+
+model Weather {
+  id        String   @id @default(cuid())
+  avgTemp   Float
+  rainfall  Float
+  humidity  Float
+  createdAt DateTime @default(now())
+  checkIns  CheckIn[]
+}

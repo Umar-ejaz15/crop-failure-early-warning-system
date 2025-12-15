@@ -1,0 +1,215 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "features": "Features",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "landing": {
+    "hero": {
+      "title": "Crop Failure Early Warning System",
+      "subtitle": "Prevent crop failures before they happen with intelligent monitoring",
+      "description": "Manual weekly crop monitoring with intelligent risk assessment - No expensive sensors needed!",
+      "getStarted": "Get Started",
+      "learnMore": "Learn More"
+    },
+    "features": {
+      "title": "Why Choose Our System?",
+      "subtitle": "Simple, Affordable, and Effective",
+      "manualCheckIns": {
+        "title": "Manual Check-Ins",
+        "description": "No expensive sensors needed. Simple weekly observations from farmers."
+      },
+      "smartRisk": {
+        "title": "Smart Risk Scoring",
+        "description": "Rule-based algorithm combines crop stage, weather, and symptoms."
+      },
+      "actionableAlerts": {
+        "title": "Actionable Alerts",
+        "description": "Get specific recommendations before crop failure occurs."
+      },
+      "weatherIntegration": {
+        "title": "Weather Integration",
+        "description": "Compare real-time weather with ideal conditions for your crop stage."
+      },
+      "multiCrop": {
+        "title": "Multi-Crop Support",
+        "description": "Support for Rice, Wheat, Maize, Cotton, and Sugarcane."
+      },
+      "historicalData": {
+        "title": "Historical Tracking",
+        "description": "Track your crop health over time and identify patterns."
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Three Simple Steps to Protect Your Crops",
+      "step1": {
+        "title": "Select Your Crop",
+        "description": "Choose your crop type and current growth stage"
+      },
+      "step2": {
+        "title": "Complete Weekly Check-In",
+        "description": "Answer simple yes/no questions about crop health"
+      },
+      "step3": {
+        "title": "Get Risk Assessment",
+        "description": "Receive instant alerts and actionable recommendations"
+      }
+    },
+    "cta": {
+      "title": "Ready to Protect Your Crops?",
+      "description": "Start monitoring your crops today and prevent failures before they happen",
+      "button": "Start Free Trial"
+    }
+  },
+  "checkIn": {
+    "title": "Weekly Crop Check-In",
+    "subtitle": "Complete this checklist to assess your crop health",
+    "cropType": "Crop Type",
+    "currentStage": "Current Growth Stage",
+    "stage": "Stage",
+    "duration": "Duration",
+    "days": "days",
+    "criticalFactors": "Critical Factors",
+    "idealTemp": "Ideal Temperature",
+    "weatherConditions": "Current Weather Conditions",
+    "avgTemp": "Average Temperature (°C)",
+    "rainfall": "Rainfall (mm)",
+    "humidity": "Humidity (%)",
+    "healthChecklist": "Crop Health Checklist",
+    "yes": "Yes",
+    "no": "No",
+    "submitButton": "Submit Check-In & Get Risk Assessment",
+    "categories": {
+      "pest": "Pest Management",
+      "disease": "Disease Management",
+      "water": "Water Management",
+      "nutrient": "Nutrient Management",
+      "growth": "Growth Management",
+      "weather": "Weather Management"
+    },
+    "crops": {
+      "Rice": "Rice",
+      "Wheat": "Wheat",
+      "Maize": "Maize",
+      "Barley": "Barley",
+      "Soybean": "Soybean",
+      "Cotton": "Cotton",
+      "Sugarcane": "Sugarcane",
+      "Potato": "Potato",
+      "Tomato": "Tomato",
+      "Onion": "Onion",
+      "Sorghum": "Sorghum",
+      "Millet": "Millet",
+      "Peanut": "Peanut",
+      "Sunflower": "Sunflower",
+      "Rapeseed": "Rapeseed",
+      "Chickpea": "Chickpea",
+      "Lentil": "Lentil",
+      "Mustard": "Mustard",
+      "Groundnut": "Groundnut",
+      "Beans": "Beans"
+    },
+    "stages": {
+      "germination": "Germination",
+      "seedling": "Seedling",
+      "tillering": "Tillering",
+      "panicle": "Panicle Initiation",
+      "flowering": "Flowering",
+      "grain-filling": "Grain Filling",
+      "maturity": "Maturity",
+      "stem-elongation": "Stem Elongation",
+      "stem-extension": "Stem Extension",
+      "booting": "Booting",
+      "heading": "Heading",
+      "vegetative": "Vegetative",
+      "tasseling": "Tasseling",
+      "silking": "Silking",
+      "squaring": "Squaring",
+      "boll-development": "Boll Development",
+      "boll-opening": "Boll Opening",
+      "grand-growth": "Grand Growth",
+      "tuber-initiation": "Tuber Initiation",
+      "tuber-bulking": "Tuber Bulking",
+      "bulb-initiation": "Bulb Initiation",
+      "bulb-growth": "Bulb Growth",
+      "panicle-emergence": "Panicle Emergence",
+      "pod-development": "Pod Development",
+      "pod-filling": "Pod Filling",
+      "rosette": "Rosette",
+      "bolting": "Bolting",
+      "bud-formation": "Bud Formation",
+      "seed-filling": "Seed Filling",
+      "fruit-set": "Fruit Set",
+      "fruit-development": "Fruit Development"
+    },
+    "questions": {
+      "pest-1": "Have you noticed any unusual insect activity on leaves or stems?",
+      "pest-2": "Are there visible holes or damage on plant leaves?",
+      "pest-3": "Have you seen any caterpillars or larvae on the crop?",
+      "disease-1": "Are there any yellow or brown spots on the leaves?",
+      "disease-2": "Do you see any wilting or drooping of plants despite adequate water?",
+      "disease-3": "Is there any white powdery substance or mold on leaves?",
+      "disease-4": "Are there any rotting symptoms on stems or roots?",
+      "water-1": "Is the soil too dry or cracked?",
+      "water-2": "Is there waterlogging or standing water in the field?",
+      "water-3": "Are irrigation channels or systems working properly?",
+      "nutrient-1": "Are the leaves yellowing from the bottom up?",
+      "nutrient-2": "Is plant growth slower than expected for this stage?",
+      "nutrient-3": "Are leaves smaller or paler than normal?",
+      "growth-1": "Is the crop developing at the expected rate?",
+      "growth-2": "Are there any plants that are significantly stunted?",
+      "weather-1": "Has there been extreme heat (>35°C) in the past week?",
+      "weather-2": "Has there been heavy rainfall causing damage?",
+      "weather-3": "Has there been unexpected frost or cold?"
+    },
+    "factors": {
+      "Water availability": "Water availability",
+      "Temperature": "Temperature",
+      "Seed quality": "Seed quality",
+      "Water management": "Water management",
+      "Pest control": "Pest control",
+      "Nutrient availability": "Nutrient availability",
+      "Nitrogen supply": "Nitrogen supply",
+      "Water level": "Water level",
+      "Pest management": "Pest management",
+      "Water stress avoidance": "Water stress avoidance",
+      "Disease control": "Disease control",
+      "Nutrient balance": "Nutrient balance",
+      "Temperature control": "Temperature control",
+      "Disease prevention": "Disease prevention",
+      "Harvesting timing": "Harvesting timing",
+      "Drying conditions": "Drying conditions",
+      "Soil moisture": "Soil moisture",
+      "Seed depth": "Seed depth",
+      "Nitrogen": "Nitrogen",
+      "Water": "Water",
+      "Nutrient supply": "Nutrient supply",
+      "Water stress": "Water stress",
+      "Pollination": "Pollination",
+      "Disease": "Disease",
+      "Weather": "Weather"
+    }
+  },
+  "dashboard": {
+    "riskAssessment": "Risk Assessment",
+    "criticalAlerts": "Critical Alerts",
+    "recommendations": "Recommended Actions",
+    "checkInHistory": "Check-In History",
+    "noAssessment": "No assessment yet",
+    "completeCheckIn": "Complete the weekly check-in to see your risk assessment",
+    "healthyStatus": "Your crop is healthy!",
+    "healthyMessage": "Continue with regular monitoring and maintenance practices."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "noData": "No data available",
+    "yes": "Yes",
+    "no": "No",
+    "action": "Action"
+  }
+}

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./fadein.css";
 
 :root {
   --background: #ffffff;
