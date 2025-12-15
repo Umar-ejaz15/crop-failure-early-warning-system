@@ -257,7 +257,7 @@ export default function WeeklyCheckInForm({ onSubmit }: WeeklyCheckInFormProps) 
                         </button>
                       </div>
                       <label className="text-sm text-zinc-700 dark:text-zinc-300 flex-1">
-                        {question.question}
+                        {t(question.question)}
                       </label>
                     </div>
                   ))}

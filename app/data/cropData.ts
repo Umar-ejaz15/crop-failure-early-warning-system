@@ -49,18 +49,18 @@ export const cropStages: Record<string, CropStage[]> = {
 export const checkInQuestions: Record<string, ChecklistItem[]> = {
   Rice: [
     // === PEST (12 questions) ===
-    { id: 'rice-pest-1', question: 'Do you see holes or window-like feeding marks on leaves?', category: 'pest', riskWeight: 8 },
-    { id: 'rice-pest-2', question: 'Are there small brown insects on lower stems near water?', category: 'pest', riskWeight: 9 },
-    { id: 'rice-pest-3', question: 'Do you see leaves rolled/folded with white streaks inside?', category: 'pest', riskWeight: 7 },
-    { id: 'rice-pest-4', question: 'Are central shoots of young plants dried and brown (dead hearts)?', category: 'pest', riskWeight: 9 },
-    { id: 'rice-pest-5', question: 'Are panicles empty and turning white prematurely (white heads)?', category: 'pest', riskWeight: 10 },
-    { id: 'rice-pest-6', question: 'Do you see blue-green beetles making parallel white lines on leaves?', category: 'pest', riskWeight: 7 },
-    { id: 'rice-pest-7', question: 'Are there onion-shaped swellings on stems (silver shoots)?', category: 'pest', riskWeight: 8 },
-    { id: 'rice-pest-8', question: 'Do you see small green hoppers jumping when you touch plants?', category: 'pest', riskWeight: 8 },
-    { id: 'rice-pest-9', question: 'Are there shield-shaped bugs on grain heads?', category: 'pest', riskWeight: 7 },
-    { id: 'rice-pest-10', question: 'Is the central leaf yellowing with small larvae visible?', category: 'pest', riskWeight: 7 },
-    { id: 'rice-pest-11', question: 'Are there rats or birds damaging more than 5% of crop?', category: 'pest', riskWeight: 8 },
-    { id: 'rice-pest-12', question: 'Do you see caterpillars cutting leaves at night?', category: 'pest', riskWeight: 7 },
+    { id: 'rice-pest-1', question: 'checkIn.questions.rice-pest-1', category: 'pest', riskWeight: 8 },
+    { id: 'rice-pest-2', question: 'checkIn.questions.rice-pest-2', category: 'pest', riskWeight: 9 },
+    { id: 'rice-pest-3', question: 'checkIn.questions.rice-pest-3', category: 'pest', riskWeight: 7 },
+    { id: 'rice-pest-4', question: 'checkIn.questions.rice-pest-4', category: 'pest', riskWeight: 9 },
+    { id: 'rice-pest-5', question: 'checkIn.questions.rice-pest-5', category: 'pest', riskWeight: 10 },
+    { id: 'rice-pest-6', question: 'checkIn.questions.rice-pest-6', category: 'pest', riskWeight: 7 },
+    { id: 'rice-pest-7', question: 'checkIn.questions.rice-pest-7', category: 'pest', riskWeight: 8 },
+    { id: 'rice-pest-8', question: 'checkIn.questions.rice-pest-8', category: 'pest', riskWeight: 8 },
+    { id: 'rice-pest-9', question: 'checkIn.questions.rice-pest-9', category: 'pest', riskWeight: 7 },
+    { id: 'rice-pest-10', question: 'checkIn.questions.rice-pest-10', category: 'pest', riskWeight: 7 },
+    { id: 'rice-pest-11', question: 'checkIn.questions.rice-pest-11', category: 'pest', riskWeight: 8 },
+    { id: 'rice-pest-12', question: 'checkIn.questions.rice-pest-12', category: 'pest', riskWeight: 7 },
     
     // === DISEASE (12 questions) ===
     { id: 'rice-disease-1', question: 'Are there diamond/spindle-shaped gray-brown spots on leaves?', category: 'disease', riskWeight: 10 },
