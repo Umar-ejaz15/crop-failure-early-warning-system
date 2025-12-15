@@ -87,7 +87,7 @@ export default function DashboardPage() {
     // Recalculate assessment with historical data for better accuracy
     const enhancedAssessment = calculateRiskScore(
       checkIn.responses,
-      checkInQuestions,
+      checkInQuestions[checkIn.cropType] || [],
       checkIn.cropType,
       checkIn.currentStage,
       checkIn.weatherConditions,

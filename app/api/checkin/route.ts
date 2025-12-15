@@ -39,8 +39,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (id) {
+      const checkIn = await prisma.checkIn.findUnique({
+        where: { id },
+        include: { weather: true },
+      });
+      if (!checkIn) {
+        return NextResponse.json({ error: 'Check-in not found' }, { status: 404 });
+      }
+      return NextResponse.json(checkIn);
+    }
     const checkIns = await prisma.checkIn.findMany({
       include: {
         weather: true,
@@ -49,7 +61,6 @@ export async function GET() {
         createdAt: 'desc',
       },
     });
-
     return NextResponse.json(checkIns);
   } catch (error) {
     console.error('Error fetching check-ins:', error);

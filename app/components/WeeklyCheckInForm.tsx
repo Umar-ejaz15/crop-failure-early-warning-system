@@ -47,7 +47,7 @@ export default function WeeklyCheckInForm({ onSubmit }: WeeklyCheckInFormProps) 
     e.preventDefault();
 
     // Calculate risk assessment with enhanced parameters
-    const assessment = calculateRiskScore(responses, checkInQuestions, cropType, currentStage, weatherData);
+    const assessment = calculateRiskScore(responses, checkInQuestions[cropType] || [], cropType, currentStage, weatherData);
     
     // Get current stage data
     const stageData = cropStages[cropType]?.find(s => s.id === currentStage);
@@ -216,10 +216,15 @@ export default function WeeklyCheckInForm({ onSubmit }: WeeklyCheckInFormProps) 
           {t('checkIn.healthChecklist')}
         </h3>
         <div className="space-y-4">
-          {['pest', 'disease', 'water', 'nutrient', 'growth', 'weather'].map(category => {
-            const categoryQuestions = checkInQuestions.filter(q => q.category === category);
-            
-            return (
+          {(() => {
+            const questions = checkInQuestions[cropType] || [];
+            if (questions.length === 0) return <div className="text-zinc-500">No questions defined for this crop yet.</div>;
+            const grouped = questions.reduce((acc, q) => {
+              acc[q.category] = acc[q.category] || [];
+              acc[q.category].push(q);
+              return acc;
+            }, {} as Record<string, typeof questions>);
+            return Object.entries(grouped).map(([category, categoryQuestions]) => (
               <div key={category} className="border border-zinc-200 dark:border-zinc-700 rounded-xl p-4 bg-zinc-50/50 dark:bg-zinc-800/50">
                 <h4 className="font-semibold text-zinc-800 dark:text-zinc-200 mb-3 capitalize">
                   {t(`checkIn.categories.${category}`)}
@@ -252,14 +257,14 @@ export default function WeeklyCheckInForm({ onSubmit }: WeeklyCheckInFormProps) 
                         </button>
                       </div>
                       <label className="text-sm text-zinc-700 dark:text-zinc-300 flex-1">
-                        {t(`checkIn.questions.${question.id}`)}
+                        {question.question}
                       </label>
                     </div>
                   ))}
                 </div>
               </div>
-            );
-          })}
+            ));
+          })()}
         </div>
       </div>
 

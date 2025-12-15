@@ -6,7 +6,8 @@ export interface CropStage {
   idealConditions: {
     tempMin: number;
     tempMax: number;
-    rainfall: string;
+    rainfallMin: number;
+    rainfallMax: number;
     humidity: string;
   };
 }

@@ -1,6 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import '../components/echarts-gl-import';
+import { useEffect, useState } from 'react';
+import EChartsSSRWarning from './EChartsSSRWarning';
 import { RiskAssessment, Alert, WeeklyCheckIn } from '../types/crop';
 import { ClipboardList, AlertTriangle, AlertOctagon, Info, CheckCircle, Lightbulb, TrendingUp, BarChart3, CloudRain } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -19,6 +22,8 @@ interface RiskDashboardProps {
 
 export default function RiskDashboard({ assessment, cropType, currentStage, checkInHistory, geminiSuggestions }: RiskDashboardProps) {
   const { t } = useLanguage();
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => { setIsClient(true); }, []);
   if (!assessment) {
     return (
       <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-8 border border-zinc-100 dark:border-zinc-800">
@@ -228,6 +233,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
       {/* Analytics Graphs - Enhanced with more charts */}
       {checkInHistory.length > 1 && (
         <>
+          {!isClient && <EChartsSSRWarning />}
           {/* Risk Trend with Prediction */}
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl p-8 border border-zinc-100 dark:border-zinc-800 animate-fade-in">
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 flex items-center gap-2">
@@ -295,6 +301,55 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                 }
               }}
               style={{ height: '350px' }}
+            />
+            {/* 3D Bar Chart for Category Risk Over Time */}
+            <ReactECharts
+              option={{
+                tooltip: {},
+                visualMap: {
+                  max: 10,
+                  inRange: {
+                    color: ['#e0f7fa', '#80deea', '#26c6da', '#00acc1', '#00838f']
+                  }
+                },
+                xAxis3D: {
+                  type: 'category',
+                  data: checkInHistory.slice().reverse().map(c => new Date(c.date).toLocaleDateString())
+                },
+                yAxis3D: {
+                  type: 'category',
+                  data: Object.keys(assessment.factors).map(key => t(`checkIn.categories.${key}`))
+                },
+                zAxis3D: {
+                  type: 'value',
+                  max: 10
+                },
+                grid3D: {
+                  boxWidth: 100,
+                  boxDepth: 60,
+                  viewControl: { projection: 'perspective' }
+                },
+                series: [{
+                  type: 'bar3D',
+                  data: checkInHistory.slice().reverse().flatMap((c, i) => {
+                    const factors = Object.values(
+                      calculateRiskScore(
+                        c.responses,
+                        checkInQuestions[c.cropType] || [],
+                        c.cropType,
+                        c.currentStage,
+                        c.weatherConditions
+                      ).factors
+                    );
+                    return factors.map((score, j) => [i, j, score]);
+                  }),
+                  shading: 'color',
+                  label: {
+                    show: false
+                  }
+                }]
+              }}
+              style={{ height: '400px', marginTop: 32 }}
             />
           </div>
 
@@ -490,7 +545,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                     // This is a simplified approach - in production you'd store factors in the database
                     const historicalAssessment = calculateRiskScore(
                       c.responses,
-                      checkInQuestions,
+                      checkInQuestions[c.cropType] || [],
                       c.cropType,
                       c.currentStage,
                       c.weatherConditions
