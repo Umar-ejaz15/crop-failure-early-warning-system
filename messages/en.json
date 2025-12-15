@@ -59,15 +59,15 @@
         "benefit1": "Trend analysis",
         "benefit2": "Pattern recognition",
         "benefit3": "Seasonal insights"
-            "trustTitle": "Why Farmers Trust Us",
-            "trust": {
-              "fastTitle": "Fast & Easy",
-              "fastDesc": "Complete check-ins in under 5 minutes",
-              "farmersTitle": "10,000+ Farmers",
-              "farmersDesc": "Trusted by farming communities",
-              "languageTitle": "Multi-Language",
-              "languageDesc": "Available in English and Urdu"
-            },
+      },
+      "trustTitle": "Why Farmers Trust Us",
+      "trust": {
+        "fastTitle": "Fast & Easy",
+        "fastDesc": "Complete check-ins in under 5 minutes",
+        "farmersTitle": "10,000+ Farmers",
+        "farmersDesc": "Trusted by farming communities",
+        "languageTitle": "Multi-Language",
+        "languageDesc": "Available in English and Urdu"
       }
     },
     "howItWorks": {
