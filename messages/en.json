@@ -20,27 +20,54 @@
       "subtitle": "Simple, Affordable, and Effective",
       "manualCheckIns": {
         "title": "Manual Check-Ins",
-        "description": "No expensive sensors needed. Simple weekly observations from farmers."
+        "description": "No expensive sensors needed. Simple weekly observations from farmers.",
+        "benefit1": "No hardware costs",
+        "benefit2": "Easy to use",
+        "benefit3": "Works offline"
       },
       "smartRisk": {
         "title": "Smart Risk Scoring",
-        "description": "Rule-based algorithm combines crop stage, weather, and symptoms."
+        "description": "Rule-based algorithm combines crop stage, weather, and symptoms.",
+        "benefit1": "Real-time analysis",
+        "benefit2": "Proven algorithms",
+        "benefit3": "Accurate predictions"
       },
       "actionableAlerts": {
         "title": "Actionable Alerts",
-        "description": "Get specific recommendations before crop failure occurs."
+        "description": "Get specific recommendations before crop failure occurs.",
+        "benefit1": "Early warnings",
+        "benefit2": "Specific actions",
+        "benefit3": "Prevent losses"
       },
       "weatherIntegration": {
         "title": "Weather Integration",
-        "description": "Compare real-time weather with ideal conditions for your crop stage."
+        "description": "Compare real-time weather with ideal conditions for your crop stage.",
+        "benefit1": "Weather tracking",
+        "benefit2": "Stage-specific advice",
+        "benefit3": "Climate adaptation"
       },
       "multiCrop": {
         "title": "Multi-Crop Support",
-        "description": "Support for Rice, Wheat, Maize, Cotton, and Sugarcane."
+        "description": "Support for Rice, Wheat, Maize, Cotton, and Sugarcane.",
+        "benefit1": "5+ crop types",
+        "benefit2": "Regional varieties",
+        "benefit3": "Custom stages"
       },
       "historicalData": {
         "title": "Historical Tracking",
-        "description": "Track your crop health over time and identify patterns."
+        "description": "Track your crop health over time and identify patterns.",
+        "benefit1": "Trend analysis",
+        "benefit2": "Pattern recognition",
+        "benefit3": "Seasonal insights"
+            "trustTitle": "Why Farmers Trust Us",
+            "trust": {
+              "fastTitle": "Fast & Easy",
+              "fastDesc": "Complete check-ins in under 5 minutes",
+              "farmersTitle": "10,000+ Farmers",
+              "farmersDesc": "Trusted by farming communities",
+              "languageTitle": "Multi-Language",
+              "languageDesc": "Available in English and Urdu"
+            },
       }
     },
     "howItWorks": {
