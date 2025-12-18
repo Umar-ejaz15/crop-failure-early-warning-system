@@ -8,7 +8,6 @@ import { RiskAssessment, Alert, WeeklyCheckIn } from '../types/crop';
 import { ClipboardList, AlertTriangle, AlertOctagon, Info, CheckCircle, Lightbulb, TrendingUp, BarChart3, CloudRain } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { checkInQuestions } from '../data/cropData';
-import { calculateRiskScore } from '../utils/riskCalculator';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
@@ -84,7 +83,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
   return (
     <div className="space-y-10">
       {/* Overall Risk Score */}
-      <div className="bg-gradient-to-br from-white to-zinc-50 dark:from-zinc-900 dark:to-zinc-900 rounded-3xl shadow-2xl p-8 border border-zinc-100 dark:border-zinc-800 transition-all duration-300">
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl p-8 border border-zinc-100 dark:border-zinc-800 transition-all duration-300">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <div>
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t('dashboard.riskAssessment')}</h2>
@@ -135,7 +134,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
 
       {/* Alerts */}
       {assessment.alerts.length > 0 && (
-        <div className="bg-gradient-to-br from-red-50 to-zinc-50 dark:from-red-900/20 dark:to-zinc-900 rounded-3xl shadow-2xl p-8 border border-red-200 dark:border-red-800 animate-fade-in">
+        <div className="bg-linear-to-br from-red-50 to-zinc-50 dark:from-red-900/20 dark:to-zinc-900 rounded-3xl shadow-2xl p-8 border border-red-200 dark:border-red-800 animate-fade-in">
           <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 flex items-center gap-2">
             <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-lg">
               <AlertOctagon className="w-5 h-5 text-red-600 dark:text-red-400" />
@@ -143,13 +142,13 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
             {t('dashboard.criticalAlerts')} ({assessment.alerts.length})
           </h3>
           <div className="space-y-4">
-            {assessment.alerts.map((alert) => (
+            {assessment.alerts.map((alert: Alert) => (
               <div
                 key={alert.id}
                 className={`border-l-8 rounded-2xl p-5 flex gap-4 items-start shadow-md ${getSeverityColor(alert.severity)} animate-fade-in`}
                 style={{ borderLeftColor: alert.severity === 'critical' ? '#ef4444' : alert.severity === 'high' ? '#f59e0b' : alert.severity === 'medium' ? '#f97316' : '#3b82f6' }}
               >
-                <div className="flex-shrink-0 mt-1">{getSeverityIcon(alert.severity)}</div>
+                <div className="shrink-0 mt-1">{getSeverityIcon(alert.severity)}</div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-bold uppercase text-zinc-800 dark:text-zinc-100 tracking-wide">
@@ -174,7 +173,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
 
       {/* Gemini Suggestions */}
       {geminiSuggestions && geminiSuggestions.trim() && (
-        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-3xl shadow-lg p-7 border border-yellow-200 dark:border-yellow-800 animate-fade-in mb-4">
+        <div className="bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-3xl shadow-lg p-7 border border-yellow-200 dark:border-yellow-800 animate-fade-in mb-4">
           <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-amber-500" />
             AI Suggestions
@@ -199,7 +198,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
           <ul className="space-y-3">
             {assessment.recommendations.map((recommendation, index) => (
               <li key={index} className="flex items-start gap-3 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg">
-                <span className="flex-shrink-0 w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold shadow-sm">
+                <span className="shrink-0 w-7 h-7 bg-linear-to-br from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold shadow-sm">
                   {index + 1}
                 </span>
                 <span className="text-zinc-700 dark:text-zinc-300 flex-1 pt-0.5">
@@ -213,9 +212,9 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
 
       {/* No Issues */}
       {assessment.alerts.length === 0 && assessment.overallRisk < 3 && (
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-3xl p-8 shadow-lg animate-fade-in">
+        <div className="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-3xl p-8 shadow-lg animate-fade-in">
           <div className="flex items-center gap-4">
-            <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-xl shadow-lg">
+            <div className="bg-linear-to-br from-green-500 to-emerald-600 p-3 rounded-xl shadow-lg">
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
             <div>
@@ -287,7 +286,8 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                   type: 'line',
                   data: [
                     ...checkInHistory.slice().reverse().map(c => c.riskScore),
-                    Math.min(10, Math.max(0, assessment.overallRisk + (Math.random() - 0.5) * 2))
+                    // Simple projection: maintain the last risk score
+                    checkInHistory.length > 0 ? checkInHistory[0].riskScore : assessment.overallRisk
                   ],
                   smooth: true,
                   itemStyle: { color: '#f59e0b' },
@@ -300,6 +300,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                   ]
                 }
               }}
+
               style={{ height: '350px' }}
             />
             {/* 3D Bar Chart for Category Risk Over Time */}
@@ -329,18 +330,16 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                   boxDepth: 60,
                   viewControl: { projection: 'perspective' }
                 },
-                series: [{
+                  series: [{
                   type: 'bar3D',
                   data: checkInHistory.slice().reverse().flatMap((c, i) => {
-                    const factors = Object.values(
-                      calculateRiskScore(
-                        c.responses,
-                        checkInQuestions[c.cropType] || [],
-                        c.cropType,
-                        c.currentStage,
-                        c.weatherConditions
-                      ).factors
-                    );
+                    const factors = [
+                         c.factors?.pest || 0,
+                         c.factors?.water || 0,
+                         c.factors?.weather || 0,
+                         c.factors?.disease || 0,
+                         c.factors?.growth || 0
+                    ];
                     return factors.map((score, j) => [i, j, score]);
                   }),
                   shading: 'color',
@@ -541,16 +540,8 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                   name: t(`checkIn.categories.${category}`),
                   type: 'line',
                   data: checkInHistory.slice().reverse().map(c => {
-                    // For historical data, we need to recalculate factors since they're not stored
-                    // This is a simplified approach - in production you'd store factors in the database
-                    const historicalAssessment = calculateRiskScore(
-                      c.responses,
-                      checkInQuestions[c.cropType] || [],
-                      c.cropType,
-                      c.currentStage,
-                      c.weatherConditions
-                    );
-                    return historicalAssessment.factors[category as keyof typeof historicalAssessment.factors] || 0;
+                    const factors = c.factors || {};
+                    return factors[category as keyof typeof factors] || 0;
                   }),
                   smooth: true,
                   itemStyle: {

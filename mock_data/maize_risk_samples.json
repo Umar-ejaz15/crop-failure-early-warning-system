@@ -1,0 +1,118 @@
+[
+  {
+    "id": "maize-001",
+    "description": "Healthy Maize - Silking Stage",
+    "location": {
+      "region": "Karnataka, India",
+      "lat": 14.5,
+      "lon": 75.6
+    },
+    "crop_data": {
+      "crop_name": "Maize",
+      "variety": "Hybrid-Corn",
+      "sowing_date": "2024-06-05",
+      "current_date": "2024-08-15",
+      "stage": "Silking"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 150.0,
+      "rainfall_anomaly_pct": 5.0,
+      "tmax_avg_14d_c": 29.0,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.81,
+      "ndvi_anomaly": 0.05,
+      "soil_moisture_index": 0.70
+    },
+    "assessment": {
+        "risk_level": "Low",
+        "score": 10
+    }
+  },
+  {
+    "id": "maize-002",
+    "description": "High Risk - Drought at Critical Polination",
+    "location": {
+      "region": "Maharashtra, India",
+      "lat": 19.8,
+      "lon": 75.3
+    },
+    "crop_data": {
+      "crop_name": "Maize",
+      "variety": "Pioneer",
+      "sowing_date": "2024-06-15",
+      "current_date": "2024-08-25",
+      "stage": "Tasseling/Silking"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 20.0,
+      "rainfall_anomaly_pct": -70.0,
+      "tmax_avg_14d_c": 36.0,
+      "heat_stress_days": 12,
+      "ndvi_current": 0.60,
+      "ndvi_anomaly": -0.18,
+      "soil_moisture_index": 0.25
+    },
+    "assessment": {
+        "risk_level": "High",
+        "score": 90
+    }
+  },
+  {
+    "id": "maize-003",
+    "description": "Medium Risk - Early Stage Stunt (Phosphorus/Cold)",
+    "location": {
+      "region": "Punjab (Spring Maize)",
+      "lat": 31.0,
+      "lon": 75.5
+    },
+    "crop_data": {
+      "crop_name": "Maize",
+      "variety": "Spring-Hybrid",
+      "sowing_date": "2025-02-15",
+      "current_date": "2025-03-15",
+      "stage": "Seedling"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 10.0,
+      "rainfall_anomaly_pct": -20.0,
+      "tmax_avg_14d_c": 12.0,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.25,
+      "ndvi_anomaly": -0.15,
+      "soil_moisture_index": 0.60
+    },
+    "assessment": {
+        "risk_level": "Medium",
+        "score": 45
+    }
+  },
+  {
+    "id": "maize-004",
+    "description": "High Risk - Fall Armyworm Damage (Vegetation Loss)",
+    "location": {
+      "region": "Kenya (Example)",
+      "lat": -1.2,
+      "lon": 36.8
+    },
+    "crop_data": {
+      "crop_name": "Maize",
+      "variety": "Local",
+      "sowing_date": "2024-03-01",
+      "current_date": "2024-05-15",
+      "stage": "Vegetative"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 100.0,
+      "rainfall_anomaly_pct": 0.0,
+      "tmax_avg_14d_c": 26.0,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.40,
+      "ndvi_anomaly": -0.35,
+      "soil_moisture_index": 0.70
+    },
+    "assessment": {
+        "risk_level": "High",
+        "score": 65
+    }
+  }
+]

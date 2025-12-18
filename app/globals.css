@@ -2,8 +2,30 @@
 @import "./fadein.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Light Mode: 'Digital Harvest' - Clean, Clinical, Organic */
+  --background: #f8fafc; /* Slate-50 */
+  --foreground: #0f172a; /* Slate-900 */
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  --primary: #059669; /* Emerald-600 */
+  --primary-foreground: #f0fdf4;
+
+  --secondary: #e2e8f0; /* Slate-200 */
+  --secondary-foreground: #1e293b;
+
+  --muted: #f1f5f9; /* Slate-100 */
+  --muted-foreground: #64748b;
+
+  --accent: #dbeafe; /* Blue-100 */
+  --accent-foreground: #2563eb;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #fef2f2;
 }
 
 @theme inline {
@@ -15,8 +37,30 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark Mode: 'Night Field' - Deep, High Contrast, OLED Friendly */
+    --background: #020617; /* Slate-950 */
+    --foreground: #f1f5f9; /* Slate-100 */
+
+    --card: #0f172a; /* Slate-900 */
+    --card-foreground: #f1f5f9;
+
+    --popover: #0f172a;
+    --popover-foreground: #f1f5f9;
+
+    --primary: #10b981; /* Emerald-500 */
+    --primary-foreground: #020617;
+
+    --secondary: #1e293b; /* Slate-800 */
+    --secondary-foreground: #f1f5f9;
+
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+
+    --accent: #1e3a8a; /* Blue-900 */
+    --accent-foreground: #60a5fa;
+
+    --destructive: #7f1d1d;
+    --destructive-foreground: #fef2f2;
   }
 }
 

@@ -1,0 +1,118 @@
+[
+  {
+    "id": "rice-001",
+    "description": "Healthy Rice - Active Tillering",
+    "location": {
+      "region": "West Bengal, India",
+      "lat": 23.5,
+      "lon": 87.8
+    },
+    "crop_data": {
+      "crop_name": "Rice",
+      "variety": "Swarna",
+      "sowing_date": "2024-06-15",
+      "current_date": "2024-08-10",
+      "stage": "Tillering"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 350.0,
+      "rainfall_anomaly_pct": 10.0,
+      "tmax_avg_14d_c": 32.0,
+      "heat_stress_days": 1,
+      "ndvi_current": 0.78,
+      "ndvi_anomaly": 0.08,
+      "soil_moisture_index": 0.90
+    },
+    "assessment": {
+        "risk_level": "Low",
+        "score": 10
+    }
+  },
+  {
+    "id": "rice-002",
+    "description": "High Risk - Severe Drought (Monsoon Break)",
+    "location": {
+      "region": "Bihar, India",
+      "lat": 25.6,
+      "lon": 85.1
+    },
+    "crop_data": {
+      "crop_name": "Rice",
+      "variety": "MTU-7029",
+      "sowing_date": "2024-06-20",
+      "current_date": "2024-08-30",
+      "stage": "Panicle Initiation"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 80.0,
+      "rainfall_anomaly_pct": -60.0,
+      "tmax_avg_14d_c": 36.5,
+      "heat_stress_days": 10,
+      "ndvi_current": 0.55,
+      "ndvi_anomaly": -0.20,
+      "soil_moisture_index": 0.35
+    },
+    "assessment": {
+        "risk_level": "High",
+        "score": 75
+    }
+  },
+  {
+    "id": "rice-003",
+    "description": "Medium Risk - Delayed Transplanting Impact",
+    "location": {
+      "region": "Telangana, India",
+      "lat": 17.8,
+      "lon": 79.5
+    },
+    "crop_data": {
+      "crop_name": "Rice",
+      "variety": "RNR-15048",
+      "sowing_date": "2024-07-20",
+      "current_date": "2024-10-15",
+      "stage": "Flowering"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 120.0,
+      "rainfall_anomaly_pct": -25.0,
+      "tmax_avg_14d_c": 31.0,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.65,
+      "ndvi_anomaly": -0.10,
+      "soil_moisture_index": 0.55
+    },
+    "assessment": {
+        "risk_level": "Medium",
+        "score": 40
+    }
+  },
+  {
+    "id": "rice-004",
+    "description": "High Risk - Flood/Submergence",
+    "location": {
+      "region": "Assam, India",
+      "lat": 26.2,
+      "lon": 91.7
+    },
+    "crop_data": {
+      "crop_name": "Rice",
+      "variety": "Ranjit",
+      "sowing_date": "2024-06-10",
+      "current_date": "2024-07-25",
+      "stage": "Vegetative"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 800.0,
+      "rainfall_anomaly_pct": 150.0,
+      "tmax_avg_14d_c": 28.0,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.30,
+      "ndvi_anomaly": -0.40,
+      "soil_moisture_index": 1.0
+    },
+    "assessment": {
+        "risk_level": "High",
+        "score": 80
+    }
+  }
+]

@@ -1,266 +1,293 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-// (Removed duplicate import of RiskDashboard)
-// Simple modal component
-function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6 max-w-2xl w-full relative animate-fade-in">
-        <button onClick={onClose} className="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 text-2xl">&times;</button>
-        {children}
-      </div>
-    </div>
-  );
-}
-import { ClipboardCheck, BarChart3, History } from 'lucide-react';
-import WeeklyCheckInForm from "../components/WeeklyCheckInForm";
-import RiskDashboard from "../components/RiskDashboard";
-import { WeeklyCheckIn, RiskAssessment } from "../types/crop";
-import { useLanguage } from '../contexts/LanguageContext';
+import { Sprout, BarChart3, CloudRain, Calendar, AlertTriangle, History as HistoryIcon, Plus, User } from 'lucide-react';
+import ProfileForm from '../components/ProfileForm';
+import WeeklyRecordForm from '../components/WeeklyRecordForm';
+import MonthlyRecordForm from '../components/MonthlyRecordForm';
+import FailureRecordForm from '../components/FailureRecordForm';
+import RiskDashboard from '../components/RiskDashboard'; // Reusing for visuals
+import { FarmProfile, WeeklyRecord, MonthlyRecord } from '../types/crop';
 import { checkInQuestions } from '../data/cropData';
-import { calculateRiskScore } from '../utils/riskCalculator';
+import { analyzeCropRisk } from '../utils/simpleRiskEngine';
 
 export default function DashboardPage() {
-  const [currentCheckIn, setCurrentCheckIn] = useState<WeeklyCheckIn | null>(null);
-  const [currentAssessment, setCurrentAssessment] = useState<RiskAssessment | null>(null);
-  const [checkInHistory, setCheckInHistory] = useState<WeeklyCheckIn[]>([]);
-  const [activeTab, setActiveTab] = useState<'checkin' | 'dashboard' | 'history'>('checkin');
-  const [geminiSuggestions, setGeminiSuggestions] = useState<string>('');
-  const { t } = useLanguage();
-  const [selectedCheckIn, setSelectedCheckIn] = useState<WeeklyCheckIn | null>(null);
-  const [selectedAssessment, setSelectedAssessment] = useState<RiskAssessment | null>(null);
-  const [selectedGeminiSuggestions, setSelectedGeminiSuggestions] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<FarmProfile | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'weekly' | 'monthly' | 'history'>('overview');
+  const [showForm, setShowForm] = useState<'weekly' | 'monthly' | 'failure' | null>(null);
 
-  // Load history from DB when history tab is active
-  useEffect(() => {
-    if (activeTab === 'history') {
-      loadHistory();
-    }
-  }, [activeTab]);
+  // Data State
+  const [weeklyRecords, setWeeklyRecords] = useState<WeeklyRecord[]>([]);
+  const [lastRecord, setLastRecord] = useState<WeeklyRecord | null>(null);
+  const [mockWeather, setMockWeather] = useState({ temp: 28 }); // Simulating system data
 
-  const loadHistory = async () => {
+  const fetchProfile = async () => {
     try {
-      const res = await fetch('/api/checkin');
+      const res = await fetch('/api/profile');
       if (res.ok) {
         const data = await res.json();
-        const history = data.map((item: any) => ({
-          id: item.id,
-          farmerId: item.farmerId,
-          cropType: item.cropType,
-          currentStage: item.currentStage,
-          date: item.date,
-          responses: item.responses,
-          weatherConditions: {
-            avgTemp: item.weather.avgTemp,
-            rainfall: item.weather.rainfall,
-            humidity: item.weather.humidity,
-          },
-          riskScore: item.riskScore,
-          alerts: item.alerts,
-        }));
-        setCheckInHistory(history);
+        setProfile(data.profile);
       }
-    } catch (error) {
-      console.error('Error loading history:', error);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteHistory = async (id: string) => {
+  const fetchRecords = async (profileId: string) => {
     try {
-      const res = await fetch('/api/checkin', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
+      const res = await fetch(`/api/records/weekly?profileId=${profileId}`);
       if (res.ok) {
-        setCheckInHistory(checkInHistory.filter(item => item.id !== id));
+        const data = await res.json();
+        // Parse responses if they exist as string
+        const parsedRecords = data.records.map((r: any) => ({
+             ...r,
+             responses: typeof r.responses === 'string' ? JSON.parse(r.responses) : r.responses
+        }));
+        setWeeklyRecords(parsedRecords);
+        if (parsedRecords.length > 0) {
+            setLastRecord(parsedRecords[0]);
+        }
       }
-    } catch (error) {
-      console.error('Error deleting history:', error);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  const handleCheckInSubmit = async (checkIn: WeeklyCheckIn, assessment: RiskAssessment) => {
-    // Recalculate assessment with historical data for better accuracy
-    const enhancedAssessment = calculateRiskScore(
-      checkIn.responses,
-      checkInQuestions[checkIn.cropType] || [],
-      checkIn.cropType,
-      checkIn.currentStage,
-      checkIn.weatherConditions,
-      checkInHistory
-    );
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-    setCurrentCheckIn(checkIn);
-    setCurrentAssessment(enhancedAssessment);
-    setActiveTab('dashboard');
+  useEffect(() => {
+    if (profile) {
+        fetchRecords(profile.id);
+    }
+  }, [profile]);
+
+  const handleProfileComplete = () => {
+    fetchProfile();
+  };
+
+  const handleWeeklySubmit = async (data: any) => {
+    if (!profile) return;
+    
+    // Updated Logic: Use Combined Simple Risk Engine
+    const assessment = analyzeCropRisk({
+        rainfall: data.rainfall,
+        irrigation: data.irrigation,
+        cropCondition: data.cropCondition,
+        pstSeen: data.pestSeen,
+        temp: mockWeather.temp,
+        responses: data.responses,
+        questions: checkInQuestions[profile.cropType] || []
+    });
+
+    const payload = {
+        ...data,
+        riskScore: assessment.score,
+        riskLevel: assessment.level,
+        alerts: assessment.alerts,
+        suggestions: assessment.actions,
+        profileId: profile.id,
+        avgTemp: mockWeather.temp,
+        responses: JSON.stringify(data.responses), 
+    };
 
     try {
-      // Get AI suggestions first
-      const geminiRes = await fetch('/api/gemini-suggestions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cropType: checkIn.cropType,
-          currentStage: checkIn.currentStage,
-          responses: checkIn.responses,
-          weatherData: checkIn.weatherConditions,
-        }),
-      });
-
-      let suggestions = '';
-      if (geminiRes.ok) {
-        const geminiData = await geminiRes.json();
-        suggestions = geminiData.suggestions || '';
-        setGeminiSuggestions(suggestions);
-      }
-
-      // Save check-in with suggestions
-      const res = await fetch('/api/checkin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ checkIn, assessment: enhancedAssessment, suggestions }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Failed to save check-in:', errorData);
-        throw new Error('Failed to save check-in');
-      }
-
-      // Reload history if we're on history tab
-      if (activeTab === 'history') {
-        loadHistory();
-      }
-    } catch (error) {
-      console.error('Error saving check-in:', error);
-      // You might want to show a user-friendly error message here
-    }
-
-    // Auto-scroll to top after submit and tab switch
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }, 100);
+        const res = await fetch('/api/records/weekly', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+            setShowForm(null);
+            fetchRecords(profile.id); // Refresh
+        }
+    } catch (e) { console.error(e); }
   };
+
+  const handleMonthlySubmit = async (data: any) => {
+      if (!profile) return;
+      try {
+        const res = await fetch('/api/records/monthly', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ ...data, profileId: profile.id })
+        });
+        if (res.ok) setShowForm(null);
+      } catch (e) { console.error(e); }
+  };
+
+  const handleFailureSubmit = async (data: any) => {
+      if (!profile) return;
+      try {
+        const res = await fetch('/api/records/failure', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ ...data, profileId: profile.id })
+        });
+        if (res.ok) setShowForm(null);
+      } catch (e) { console.error(e); }
+  };
+
+  // Adapter for RiskVisuals
+  // Maps new WeeklyRecord -> Old WeeklyCheckIn format expected by RiskDashboard
+  const historyAdapter = weeklyRecords.map(record => ({
+      id: record.id,
+      date: record.date.toString(), // Ensure string date
+      riskScore: record.riskScore,
+      riskLevel: record.riskLevel, 
+      // Mapping flat weather data to nested object
+      weatherConditions: {
+          avgTemp: record.avgTemp || 0,
+          rainfall: record.rainfall || 0,
+          humidity: 0 // Placeholder
+      },
+      // Mapping flat inputs to questions/responses structure if needed, 
+      // but simplistic mapping is enough for charts usually.
+      responses: typeof record.responses === 'string' ? JSON.parse(record.responses || '{}') : record.responses,
+      factors: {
+          // Approximate factors from raw data for charts
+          water: record.rainfall < 10 ? 8 : 2,
+          pest: record.pestSeen ? 7 : 1,
+          weather: record.avgTemp && record.avgTemp > 35 ? 7 : 2
+      }
+  }));
+
+  // Convert WeeklyRecord to RiskAssessment for visuals
+  const currentRiskAssessment = lastRecord ? {
+      overallRisk: lastRecord.riskScore,
+      riskLevel: lastRecord.riskLevel.toLowerCase() as any,
+      factors: {
+          water: lastRecord.rainfall < 10 ? 8 : 2,
+          pest: lastRecord.pestSeen ? 7 : 1,
+          weather: lastRecord.avgTemp && lastRecord.avgTemp > 35 ? 7 : 3,
+          growth: lastRecord.cropCondition === 'Poor' ? 9 : lastRecord.cropCondition === 'Average' ? 5 : 1,
+          disease: 0,
+          nutrient: 0
+      },
+      alerts: (lastRecord.alerts as unknown as any[]) || [],
+      recommendations: (lastRecord.suggestions as unknown as string[]) || []
+  } : null;
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-green-600">Loading Farm Data...</div>;
+
+  if (!profile) {
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
+            <ProfileForm onComplete={handleProfileComplete} />
+        </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-black">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Navigation Tabs */}
-        <div className="flex flex-wrap gap-3 mb-8 justify-center">
-          <button
-            onClick={() => setActiveTab('checkin')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-              activeTab === 'checkin'
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/30'
-                : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'
-            }`}
-          >
-            <ClipboardCheck className="w-5 h-5" />
-            {t('nav.checkin') || 'Weekly Check-In'}
-          </button>
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-              activeTab === 'dashboard'
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/30'
-                : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'
-            }`}
-          >
-            <BarChart3 className="w-5 h-5" />
-            {t('dashboard.riskAssessment') || 'Risk Dashboard'}
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-              activeTab === 'history'
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-500/30'
-                : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700'
-            }`}
-          >
-            <History className="w-5 h-5" />
-            {t('dashboard.checkInHistory') || 'History'}
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="max-w-5xl mx-auto">
-          {activeTab === 'checkin' && (
-            <WeeklyCheckInForm onSubmit={handleCheckInSubmit} />
-          )}
-
-          {activeTab === 'dashboard' && (
-            currentCheckIn && currentAssessment ? (
-              <RiskDashboard
-                assessment={currentAssessment}
-                cropType={currentCheckIn.cropType}
-                currentStage={currentCheckIn.currentStage}
-                checkInHistory={checkInHistory}
-                geminiSuggestions={geminiSuggestions}
-              />
-            ) : (
-              <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-8 border border-zinc-100 dark:border-zinc-800 text-center text-zinc-500 dark:text-zinc-400">
-                <div className="bg-zinc-100 dark:bg-zinc-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BarChart3 className="w-10 h-10 text-zinc-400 dark:text-zinc-500" />
-                </div>
-                <p className="text-lg font-medium">{t('dashboard.noAssessment')}</p>
-                <p className="text-sm mt-1">{t('dashboard.completeCheckIn')}</p>
-              </div>
-            )
-          )}
-
-          {activeTab === 'history' && (
-            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-6 border border-zinc-100 dark:border-zinc-800">
-              <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
-                {t('dashboard.checkInHistory') || 'Check-In History'}
-              </h2>
-              {checkInHistory.length === 0 ? (
-                <div className="text-center py-12 text-zinc-500 dark:text-zinc-400">
-                  <div className="bg-zinc-100 dark:bg-zinc-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <History className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
-                  </div>
-                  <p className="text-lg font-medium">{t('dashboard.noAssessment')}</p>
-                  <p className="text-sm mt-1">{t('dashboard.completeCheckIn')}</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {checkInHistory.map((checkIn) => (
-                    <div key={checkIn.id} className="border border-zinc-200 dark:border-zinc-700 rounded-xl p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <Link
-                          href={`/report/${checkIn.id}`}
-                          className="flex-1 text-left hover:bg-green-50 dark:hover:bg-zinc-800 rounded-lg p-2 -m-2 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
-                        >
-                          <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
-                            {checkIn.cropType} - {checkIn.currentStage}
-                          </h3>
-                          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                            {new Date(checkIn.date).toLocaleDateString()}
-                          </p>
-                        </Link>
-                        <div className="text-right ml-4">
-                          <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-                            {checkIn.riskScore.toFixed(1)}
-                          </div>
-                          <button
-                            onClick={() => handleDeleteHistory(checkIn.id)}
-                            className="text-red-500 hover:text-red-700 text-sm mt-1"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+    <div className="min-h-screen bg-zinc-50 dark:bg-black pb-20">
+      {/* Header */}
+      <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div>
+                <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">{profile.farmerName}'s Farm</h1>
+                <p className="text-sm text-zinc-500 flex items-center gap-2">
+                    <Sprout className="w-3 h-3" /> {profile.cropType} 
+                    <span className="w-1 h-1 bg-zinc-300 rounded-full" />
+                    {profile.location}
+                </p>
             </div>
-          )}
+            <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setProfile(null)}
+                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Switch Farm
+                </button>
+                <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                    Active
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-6 max-w-5xl space-y-8">
+        
+        {/* Current Status Overview */}
+        {activeTab === 'overview' && (
+            <div className="space-y-6">
+                {lastRecord ? (
+                    <RiskDashboard 
+                        assessment={currentRiskAssessment} 
+                        cropType={profile.cropType} 
+                        currentStage="Current" 
+                        checkInHistory={historyAdapter as any[]} 
+                    />
+                ) : (
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 text-center border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                        <div className="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CloudRain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">No Records Yet</h3>
+                        <p className="text-zinc-500 mb-6">Start by adding your first weekly record to get a risk assessment.</p>
+                        <button 
+                            onClick={() => setShowForm('weekly')}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-blue-500/30 transition-all"
+                        >
+                            Add Weekly Record
+                        </button>
+                    </div>
+                )}
+            </div>
+        )}
+
+        {/* Forms Modal Overlay */}
+        {showForm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
+                <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+                    <button 
+                        onClick={() => setShowForm(null)}
+                        className="absolute top-4 right-4 z-10 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-lg"
+                    >
+                        ✕
+                    </button>
+                    {showForm === 'weekly' && (
+                        <WeeklyRecordForm 
+                            onSubmit={handleWeeklySubmit} 
+                            cropType={profile.cropType} 
+                        />
+                    )}
+                    {showForm === 'monthly' && <MonthlyRecordForm onSubmit={handleMonthlySubmit} />}
+                    {showForm === 'failure' && <FailureRecordForm onSubmit={handleFailureSubmit} />}
+                </div>
+            </div>
+        )}
+
+      </div>
+
+      {/* Mobile-Friendly Bottom Nav */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-4 pb-6 z-20 shadow-[0_-5px_10px_rgba(0,0,0,0.05)]">
+        <div className="container mx-auto max-w-lg flex justify-between items-center px-4">
+            <button 
+                onClick={() => setActiveTab('overview')}
+                className={`flex flex-col items-center gap-1 ${activeTab === 'overview' ? 'text-green-600 dark:text-green-400' : 'text-zinc-400'}`}
+            >
+                <BarChart3 className="w-6 h-6" />
+                <span className="text-xs font-medium">Status</span>
+            </button>
+
+            <div className="relative -top-8">
+                <button 
+                    onClick={() => setShowForm('weekly')}
+                    className="bg-gradient-to-r from-green-600 to-emerald-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl shadow-green-500/40 hover:scale-110 transition-transform"
+                >
+                    <Plus className="w-8 h-8" />
+                </button>
+            </div>
+
+            <button 
+                onClick={() => setShowForm('monthly')}
+                className={`flex flex-col items-center gap-1 text-zinc-400 hover:text-zinc-600`}
+            >
+                <Calendar className="w-6 h-6" />
+                <span className="text-xs font-medium">Monthly</span>
+            </button>
         </div>
       </div>
     </div>

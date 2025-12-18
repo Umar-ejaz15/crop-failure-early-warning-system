@@ -1,0 +1,118 @@
+[
+  {
+    "id": "wheat-001",
+    "description": "Healthy Wheat - Vegetative Stage",
+    "location": {
+      "region": "Punjab, India",
+      "lat": 30.9,
+      "lon": 75.8
+    },
+    "crop_data": {
+      "crop_name": "Wheat",
+      "variety": "PBW-343",
+      "sowing_date": "2024-11-15",
+      "current_date": "2025-01-15",
+      "stage": "Vegetative"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 45.0,
+      "rainfall_anomaly_pct": 10.5,
+      "tmax_avg_14d_c": 18.2,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.65,
+      "ndvi_anomaly": 0.05,
+      "soil_moisture_index": 0.75
+    },
+    "assessment": {
+        "risk_level": "Low",
+        "score": 5
+    }
+  },
+  {
+    "id": "wheat-002",
+    "description": "High Risk - Terminal Heat Stress",
+    "location": {
+      "region": "Bahawalpur, Pakistan",
+      "lat": 29.3,
+      "lon": 71.6
+    },
+    "crop_data": {
+      "crop_name": "Wheat",
+      "variety": "Galaxy-13",
+      "sowing_date": "2024-11-01",
+      "current_date": "2025-03-10",
+      "stage": "Grain Filling"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 2.0,
+      "rainfall_anomaly_pct": -60.0,
+      "tmax_avg_14d_c": 33.5,
+      "heat_stress_days": 8,
+      "ndvi_current": 0.55,
+      "ndvi_anomaly": -0.15,
+      "soil_moisture_index": 0.30
+    },
+     "assessment": {
+        "risk_level": "High",
+        "score": 85
+    }
+  },
+  {
+    "id": "wheat-003",
+    "description": "Medium Risk - Moisture Deficit",
+    "location": {
+      "region": "Haryana, India",
+      "lat": 29.0,
+      "lon": 76.0
+    },
+    "crop_data": {
+      "crop_name": "Wheat",
+      "variety": "HD-2967",
+      "sowing_date": "2024-11-20",
+      "current_date": "2025-02-10",
+      "stage": "Flowering"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 5.0,
+      "rainfall_anomaly_pct": -45.0,
+      "tmax_avg_14d_c": 24.0,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.72,
+      "ndvi_anomaly": -0.05,
+      "soil_moisture_index": 0.40
+    },
+     "assessment": {
+        "risk_level": "Medium",
+        "score": 45
+    }
+  },
+  {
+    "id": "wheat-004",
+    "description": "High Risk - Rust/Disease Indication (NDVI drop without dry weather)",
+    "location": {
+      "region": "Gurdaspur, India",
+      "lat": 32.0,
+      "lon": 75.4
+    },
+    "crop_data": {
+      "crop_name": "Wheat",
+      "variety": "Local",
+      "sowing_date": "2024-11-10",
+      "current_date": "2025-02-28",
+      "stage": "Heading"
+    },
+    "risk_signals": {
+      "rainfall_30d_mm": 50.0,
+      "rainfall_anomaly_pct": 20.0,
+      "tmax_avg_14d_c": 22.0,
+      "heat_stress_days": 0,
+      "ndvi_current": 0.45,
+      "ndvi_anomaly": -0.25,
+      "soil_moisture_index": 0.80
+    },
+     "assessment": {
+        "risk_level": "High",
+        "score": 70
+    }
+  }
+]
