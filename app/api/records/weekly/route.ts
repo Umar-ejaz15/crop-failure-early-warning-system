@@ -15,8 +15,9 @@ export async function GET(request: NextRequest) {
   // Parse JSON strings back to objects
   const parsedRecords = records.map((r: any) => ({
     ...r,
-    alerts: JSON.parse(r.alerts),
-    suggestions: JSON.parse(r.suggestions)
+    alerts: r.alerts ? JSON.parse(r.alerts) : [],
+    suggestions: r.suggestions ? JSON.parse(r.suggestions) : [],
+    responses: r.responses ? JSON.parse(r.responses) : {}
   }));
 
   return NextResponse.json({ records: parsedRecords });

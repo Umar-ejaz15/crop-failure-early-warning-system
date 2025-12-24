@@ -2,10 +2,12 @@
   "nav": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "portfolio": "Portfolio",
     "analytics": "Analytics",
     "features": "Features",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "report": "Field Report"
   },
   "landing": {
     "hero": {
@@ -219,17 +221,60 @@
       "Pollination": "Pollination",
       "Disease": "Disease",
       "Weather": "Weather"
+    },
+    "newRecord": "New Weekly Record",
+    "selectCrop": "Select Crop",
+    "dateOfRecord": "Date of Record",
+    "rainfallPlaceholder": "Leave 0 if no rain.",
+    "irrigationDone": "Irrigation Done?",
+    "cropCondition": "Crop Condition",
+    "pestSeen": "Pest/Disease Seen?",
+    "quickHealthChecks": "Quick Health Checks",
+    "notesPlaceholder": "Any other observations...",
+    "saveRecord": "Save Weekly Record",
+    "conditions": {
+      "good": "Good",
+      "average": "Average",
+      "poor": "Poor"
+    },
+    "irrigation": {
+      "no": "No",
+      "light": "Yes - Light",
+      "heavy": "Yes - Heavy",
+      "flooding": "Flooding"
     }
   },
   "dashboard": {
     "riskAssessment": "Risk Assessment",
+    "cropOutlook": "Crop Outlook",
     "criticalAlerts": "Critical Alerts",
     "recommendations": "Recommended Actions",
     "checkInHistory": "Check-In History",
     "noAssessment": "No assessment yet",
     "completeCheckIn": "Complete the weekly check-in to see your risk assessment",
     "healthyStatus": "Your crop is healthy!",
-    "healthyMessage": "Continue with regular monitoring and maintenance practices."
+    "healthyMessage": "Continue with regular monitoring and maintenance practices.",
+    "management": "Management",
+    "farmProfile": "Farm Profile",
+    "editProfile": "Edit Farm Details",
+    "managedRecords": "Managed Records",
+    "predictiveAnalysis": "System Predictive Analysis",
+    "liveEngineActive": "Live Engine Active",
+    "noRecordsFor": "No Records for {crop}",
+    "addInitialReport": "ADD INITIAL REPORT",
+    "allClear": "All clear!",
+    "noActiveAlerts": "No active critical alerts for your crops.",
+    "cropHistory": "Crop History",
+    "recordsFound": "{count} Records Found",
+    "week": "Week",
+    "viewFullAssessment": "View Full Assessment",
+    "highStressDetected": "High stress detected in recent report. Immediate attention recommended.",
+    "riskLevel": "{level} Risk",
+    "reportNumber": "Report #{number}",
+    "healthIndex": "Health Index",
+    "backToPortfolio": "Back to Portfolio",
+    "detailedAnalysis": "Detailed Analysis",
+    "reportDate": "Report Date"
   },
   "common": {
     "loading": "Loading...",
@@ -237,6 +282,50 @@
     "noData": "No data available",
     "yes": "Yes",
     "no": "No",
-    "action": "Action"
+    "action": "Action",
+    "active": "Active",
+    "all": "All"
+  },
+  "analytics": {
+    "riskTrend": "Risk Trend & Prediction",
+    "historicalRisk": "Historical Risk",
+    "predictedTrend": "Predicted Trend",
+    "nextWeek": "Next Week",
+    "riskScore": "Risk Score",
+    "lowRisk": "Low Risk",
+    "mediumRisk": "Medium Risk",
+    "highRisk": "High Risk",
+    "criticalRisk": "Critical Risk",
+    "weatherImpact": "Weather Impact Analysis",
+    "temperature": "Temperature (°C)",
+    "categoryBreakdown": "Category Risk Breakdown",
+    "riskDistribution": "Risk Level Distribution & Trends",
+    "categoryTrends": "Category Risk Trends",
+    "aiSuggestions": "AI Suggestions"
+  },
+  "failure": {
+    "title": "Record Crop Failure / Loss",
+    "dateOfEvent": "Date of Event",
+    "primaryCause": "Primary Cause",
+    "lossPercentage": "Estimated Loss (%)",
+    "notes": "Notes / Lessons Learned",
+    "notesPlaceholder": "What went wrong? How to prevent next time?",
+    "submitButton": "Record Failure",
+    "causes": {
+      "drought": "Drought (Low Rainfall)",
+      "heat": "Heat Stress",
+      "pest": "Pest / Disease",
+      "flood": "Flood / Heavy Rain",
+      "other": "Other"
+    }
+  },
+  "profile": {
+    "farmerName": "Farmer Name",
+    "location": "Location / District",
+    "fieldSize": "Field Size (Acres)",
+    "sowingDate": "Sowing Date",
+    "updateButton": "Update Farm Profile",
+    "namePlaceholder": "Full Name",
+    "locationPlaceholder": "e.g. Punjab, Pakistan"
   }
 }

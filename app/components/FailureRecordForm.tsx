@@ -13,6 +13,7 @@ interface FailureRecordFormProps {
 export default function FailureRecordForm({ onSubmit, isLoading }: FailureRecordFormProps) {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
+    cropType: 'Wheat',
     date: new Date().toISOString().split('T')[0],
     failureType: 'Drought',
     lossPercentage: '',
@@ -31,13 +32,35 @@ export default function FailureRecordForm({ onSubmit, isLoading }: FailureRecord
     <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 rounded-3xl shadow-lg p-6 border border-zinc-200 dark:border-zinc-800 animate-fade-in border-l-8 border-l-red-500">
       <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
         <XCircle className="w-5 h-5 text-red-500" />
-        Record Crop Failure / Loss
+        {t('failure.title')}
       </h3>
 
       <div className="grid grid-cols-1 gap-6">
         <div>
            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-             Date of Event
+             {t('checkIn.selectCrop')}
+           </label>
+           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+             {['Wheat', 'Rice', 'Maize', 'Cotton', 'Sugarcane'].map(crop => (
+               <button
+                 key={crop}
+                 type="button"
+                 onClick={() => setFormData({ ...formData, cropType: crop })}
+                 className={`px-4 py-3 rounded-xl text-xs font-bold transition-all border ${
+                   formData.cropType === crop
+                   ? 'bg-red-600 text-white border-red-600 shadow-lg shadow-red-500/20 scale-105'
+                   : 'bg-zinc-50 dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700 hover:border-red-300'
+                 }`}
+               >
+                 {t(`checkIn.crops.${crop}`)}
+               </button>
+             ))}
+           </div>
+        </div>
+
+        <div>
+           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+             {t('failure.dateOfEvent')}
            </label>
            <input
              type="date"
@@ -49,24 +72,24 @@ export default function FailureRecordForm({ onSubmit, isLoading }: FailureRecord
 
         <div>
            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-             Primary Cause
+             {t('failure.primaryCause')}
            </label>
            <select
              className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 outline-none focus:ring-2 focus:ring-red-500"
              value={formData.failureType}
              onChange={e => setFormData({ ...formData, failureType: e.target.value })}
            >
-             <option value="Drought">Drought (Low Rainfall)</option>
-             <option value="Heat">Heat Stress</option>
-             <option value="Pest">Pest / Disease</option>
-             <option value="Flood">Flood / Heavy Rain</option>
-             <option value="Other">Other</option>
+             <option value="Drought">{t('failure.causes.drought')}</option>
+             <option value="Heat">{t('failure.causes.heat')}</option>
+             <option value="Pest">{t('failure.causes.pest')}</option>
+             <option value="Flood">{t('failure.causes.flood')}</option>
+             <option value="Other">{t('failure.causes.other')}</option>
            </select>
         </div>
 
         <div>
            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-             Estimated Loss (%)
+             {t('failure.lossPercentage')}
            </label>
            <input
              type="number"
@@ -81,11 +104,11 @@ export default function FailureRecordForm({ onSubmit, isLoading }: FailureRecord
 
         <div>
            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-             Notes / Lessons Learned
+             {t('failure.notes')}
            </label>
            <textarea
              className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 outline-none focus:ring-2 focus:ring-red-500 resize-none h-24"
-             placeholder="What went wrong? How to prevent next time?"
+             placeholder={t('failure.notesPlaceholder')}
              value={formData.notes}
              onChange={e => setFormData({ ...formData, notes: e.target.value })}
            />
@@ -97,7 +120,7 @@ export default function FailureRecordForm({ onSubmit, isLoading }: FailureRecord
         disabled={isLoading}
         className="w-full mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-red-500/30 transition-all active:scale-[0.98]"
       >
-        {isLoading ? 'Saving...' : 'Record Failure'}
+        {isLoading ? t('common.loading') : t('failure.submitButton')}
       </button>
     </form>
   );

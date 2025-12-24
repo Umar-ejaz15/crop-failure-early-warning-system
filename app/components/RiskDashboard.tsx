@@ -176,7 +176,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
         <div className="bg-linear-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-3xl shadow-lg p-7 border border-yellow-200 dark:border-yellow-800 animate-fade-in mb-4">
           <h3 className="text-xl font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-amber-500" />
-            AI Suggestions
+            {t('analytics.aiSuggestions')}
           </h3>
           <ul className="list-disc pl-6 space-y-2 text-amber-900 dark:text-amber-100">
             {geminiSuggestions.split(/\n|\d+\./).filter(Boolean).map((s, i) => (
@@ -237,7 +237,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl p-8 border border-zinc-100 dark:border-zinc-800 animate-fade-in">
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-blue-500" />
-              Risk Trend & Prediction
+              {t('analytics.riskTrend')}
             </h3>
             <ReactECharts
               option={{
@@ -247,7 +247,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                   textStyle: { color: '#fff' }
                 },
                 legend: {
-                  data: ['Historical Risk', 'Predicted Trend'],
+                  data: [t('analytics.historicalRisk'), t('analytics.predictedTrend')],
                   textStyle: { color: '#666' }
                 },
                 grid: { left: '3%', right: '4%', bottom: '15%', top: '10%', containLabel: true },
@@ -255,18 +255,18 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                   type: 'category',
                   data: [
                     ...checkInHistory.slice().reverse().map(c => new Date(c.date).toLocaleDateString()),
-                    'Next Week'
+                    t('analytics.nextWeek')
                   ],
                   axisLabel: { rotate: 45, color: '#666' }
                 },
                 yAxis: {
                   type: 'value',
-                  name: 'Risk Score',
+                  name: t('analytics.riskScore'),
                   max: 10,
                   axisLabel: { color: '#666' }
                 },
                 series: [{
-                  name: 'Historical Risk',
+                  name: t('analytics.historicalRisk'),
                   type: 'line',
                   data: checkInHistory.slice().reverse().map(c => c.riskScore),
                   smooth: true,
@@ -282,7 +282,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                     }
                   }
                 }, {
-                  name: 'Predicted Trend',
+                  name: t('analytics.predictedTrend'),
                   type: 'line',
                   data: [
                     ...checkInHistory.slice().reverse().map(c => c.riskScore),
@@ -295,8 +295,8 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                 }],
                 markLine: {
                   data: [
-                    { yAxis: 3, name: 'Low Risk', lineStyle: { color: '#10b981' } },
-                    { yAxis: 7, name: 'High Risk', lineStyle: { color: '#ef4444' } }
+                    { yAxis: 3, name: t('analytics.lowRisk'), lineStyle: { color: '#10b981' } },
+                    { yAxis: 7, name: t('analytics.highRisk'), lineStyle: { color: '#ef4444' } }
                   ]
                 }
               }}
@@ -356,7 +356,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl p-8 border border-zinc-100 dark:border-zinc-800 animate-fade-in">
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 flex items-center gap-2">
               <CloudRain className="w-5 h-5 text-cyan-500" />
-              Weather Impact Analysis
+              {t('analytics.weatherImpact')}
             </h3>
             <ReactECharts
               option={{
@@ -374,19 +374,19 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                 yAxis: [
                   {
                     type: 'value',
-                    name: 'Temperature (°C)',
+                    name: t('analytics.temperature'),
                     position: 'left',
                     axisLabel: { color: '#666' }
                   },
                   {
                     type: 'value',
-                    name: 'Risk Score',
+                    name: t('analytics.riskScore'),
                     position: 'right',
                     axisLabel: { color: '#666' }
                   }
                 ],
                 series: [{
-                  name: 'Temperature',
+                  name: t('analytics.temperature').split(' ')[0],
                   type: 'line',
                   yAxisIndex: 0,
                   data: checkInHistory.slice().reverse().map(c => c.weatherConditions.avgTemp),
@@ -394,7 +394,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                   itemStyle: { color: '#f59e0b' },
                   lineStyle: { width: 2 }
                 }, {
-                  name: 'Risk Score',
+                  name: t('analytics.riskScore'),
                   type: 'line',
                   yAxisIndex: 1,
                   data: checkInHistory.slice().reverse().map(c => c.riskScore),
@@ -413,9 +413,9 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
             {/* Enhanced Category Risk Breakdown */}
             <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-7 border border-zinc-100 dark:border-zinc-800 animate-fade-in">
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-green-500" />
-                Category Risk Breakdown
-              </h3>
+              <BarChart3 className="w-5 h-5 text-green-500" />
+              {t('analytics.categoryBreakdown')}
+            </h3>
               <ReactECharts
                 option={{
                   tooltip: {
@@ -445,7 +445,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
             {/* Risk Distribution with Trends */}
             <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg p-7 border border-zinc-100 dark:border-zinc-800 animate-fade-in">
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">
-                Risk Level Distribution & Trends
+                {t('analytics.riskDistribution')}
               </h3>
               <ReactECharts
                 option={{
@@ -481,22 +481,22 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                     data: [
                       {
                         value: checkInHistory.filter(c => c.riskScore < 3).length,
-                        name: 'Low Risk',
+                        name: t('analytics.lowRisk'),
                         itemStyle: { color: '#10b981' }
                       },
                       {
                         value: checkInHistory.filter(c => c.riskScore >= 3 && c.riskScore < 5).length,
-                        name: 'Medium Risk',
+                        name: t('analytics.mediumRisk'),
                         itemStyle: { color: '#f59e0b' }
                       },
                       {
                         value: checkInHistory.filter(c => c.riskScore >= 5 && c.riskScore < 7).length,
-                        name: 'High Risk',
+                        name: t('analytics.highRisk'),
                         itemStyle: { color: '#f97316' }
                       },
                       {
                         value: checkInHistory.filter(c => c.riskScore >= 7).length,
-                        name: 'Critical Risk',
+                        name: t('analytics.criticalRisk'),
                         itemStyle: { color: '#ef4444' }
                       }
                     ]
@@ -511,7 +511,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
           <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl p-8 border border-zinc-100 dark:border-zinc-800 animate-fade-in">
             <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-purple-500" />
-              Category Risk Trends
+              {t('analytics.categoryTrends')}
             </h3>
             <ReactECharts
               option={{
@@ -532,7 +532,7 @@ export default function RiskDashboard({ assessment, cropType, currentStage, chec
                 },
                 yAxis: {
                   type: 'value',
-                  name: 'Risk Score',
+                  name: t('analytics.riskScore'),
                   max: 10,
                   axisLabel: { color: '#666' }
                 },

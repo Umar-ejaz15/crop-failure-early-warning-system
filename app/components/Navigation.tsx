@@ -14,11 +14,14 @@ export default function Navigation() {
     setLocale(locale === 'en' ? 'ur' : 'en');
   };
 
-  const navLinks = [
+  const guestLinks = [
     { href: '/', label: t('nav.home') },
-    { href: '/dashboard', label: t('nav.dashboard') },
-    { href: '/features', label: t('nav.features') },
     { href: '/about', label: t('nav.about') }
+  ];
+
+  const authLinks = [
+    { href: '/dashboard', label: t('nav.dashboard') },
+    { href: '/report', label: t('nav.report') }
   ];
 
   return (
@@ -37,7 +40,7 @@ export default function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
+            {guestLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -46,6 +49,17 @@ export default function Navigation() {
                 {link.label}
               </Link>
             ))}
+            <SignedIn>
+              {authLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-zinc-700 dark:text-zinc-300 hover:text-green-600 dark:hover:text-green-400 font-medium transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </SignedIn>
           </div>
 
           {/* Right Side Actions */}
@@ -91,7 +105,7 @@ export default function Navigation() {
         {isOpen && (
           <div className="md:hidden py-4 border-t border-zinc-200 dark:border-zinc-800">
             <div className="flex flex-col gap-3">
-              {navLinks.map((link) => (
+              {guestLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -101,13 +115,27 @@ export default function Navigation() {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/dashboard"
-                onClick={() => setIsOpen(false)}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium text-center"
-              >
-                {t('landing.hero.getStarted')}
-              </Link>
+              <SignedIn>
+                {authLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="px-4 py-2 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 font-medium transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </SignedIn>
+              <SignedOut>
+                <Link
+                  href="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium text-center"
+                >
+                  {t('landing.hero.getStarted')}
+                </Link>
+              </SignedOut>
             </div>
           </div>
         )}

@@ -46,14 +46,14 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
     <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 rounded-3xl shadow-lg p-6 border border-zinc-200 dark:border-zinc-800 animate-fade-in">
       <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
         <Activity className="w-5 h-5 text-blue-500" />
-        New Weekly Record
+        {t('checkIn.newRecord')}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Crop Selection */}
         <div className="md:col-span-2">
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                Select Crop
+                {t('checkIn.selectCrop')}
             </label>
             <div className="flex gap-2 flex-wrap">
                 {cropTypes.map(type => (
@@ -67,7 +67,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
                             : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600'
                         }`}
                     >
-                        {type}
+                        {t(`checkIn.crops.${type}`)}
                     </button>
                 ))}
             </div>
@@ -76,7 +76,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
         {/* Date */}
         <div className="md:col-span-2">
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                Date of Record
+                {t('checkIn.dateOfRecord')}
             </label>
             <input
                 type="date"
@@ -92,7 +92,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
             <div className="flex items-center gap-2">
               <CloudRain className="w-4 h-4 text-blue-500" />
-              Rainfall (mm)
+              {t('checkIn.rainfall')}
             </div>
           </label>
           <input
@@ -103,7 +103,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
             onChange={e => setFormData({ ...formData, rainfall: e.target.value })}
             placeholder="0"
           />
-          <p className="text-xs text-zinc-500 mt-1">Leave 0 if no rain.</p>
+          <p className="text-xs text-zinc-500 mt-1">{t('checkIn.rainfallPlaceholder')}</p>
         </div>
 
         {/* Irrigation */}
@@ -111,7 +111,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
             <div className="flex items-center gap-2">
               <Droplets className="w-4 h-4 text-cyan-500" />
-              Irrigation Done?
+              {t('checkIn.irrigationDone')}
             </div>
           </label>
           <select
@@ -119,10 +119,10 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
             value={formData.irrigation}
             onChange={e => setFormData({ ...formData, irrigation: e.target.value })}
           >
-            <option value="No">No</option>
-            <option value="Yes - Light">Yes - Light</option>
-            <option value="Yes - Heavy">Yes - Heavy</option>
-            <option value="Flooding">Flooding</option>
+            <option value="No">{t('checkIn.irrigation.no')}</option>
+            <option value="Yes - Light">{t('checkIn.irrigation.light')}</option>
+            <option value="Yes - Heavy">{t('checkIn.irrigation.heavy')}</option>
+            <option value="Flooding">{t('checkIn.irrigation.flooding')}</option>
           </select>
         </div>
 
@@ -131,7 +131,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-green-500" />
-              Crop Condition
+              {t('checkIn.cropCondition')}
             </div>
           </label>
           <div className="flex gap-2">
@@ -148,7 +148,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
                     : 'bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600'
                 }`}
               >
-                {condition}
+                {t(`checkIn.conditions.${condition.toLowerCase()}`)}
               </button>
             ))}
           </div>
@@ -159,7 +159,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
           <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
             <div className="flex items-center gap-2">
               <Bug className="w-4 h-4 text-red-500" />
-              Pest/Disease Seen?
+              {t('checkIn.pestSeen')}
             </div>
           </label>
           <div className="flex items-center gap-4 mt-2">
@@ -171,7 +171,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
                 onChange={() => setFormData({ ...formData, pestSeen: false })}
                 className="w-4 h-4 text-green-600 focus:ring-green-500"
               />
-              <span className="text-zinc-700 dark:text-zinc-300">No</span>
+              <span className="text-zinc-700 dark:text-zinc-300">{t('common.no')}</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -181,7 +181,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
                 onChange={() => setFormData({ ...formData, pestSeen: true })}
                 className="w-4 h-4 text-red-600 focus:ring-red-500"
               />
-              <span className="text-zinc-700 dark:text-zinc-300">Yes</span>
+              <span className="text-zinc-700 dark:text-zinc-300">{t('common.yes')}</span>
             </label>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
           <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800">
               <h4 className="font-bold text-zinc-900 dark:text-zinc-100 mb-4 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-orange-500" />
-                  Quick Health Checks
+                  {t('checkIn.quickHealthChecks')}
               </h4>
               <div className="space-y-4">
                   {questions.map((q) => (
@@ -209,7 +209,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
                                       className="text-green-600 focus:ring-green-500"
                                       onChange={(e) => handleResponseChange(q.id, e.target.value)}
                                   />
-                                  <span className="text-sm">No</span>
+                                  <span className="text-sm">{t('common.no')}</span>
                               </label>
                               <label className="flex items-center gap-2 cursor-pointer">
                                   <input 
@@ -219,7 +219,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
                                       className="text-red-600 focus:ring-red-500"
                                       onChange={(e) => handleResponseChange(q.id, e.target.value)}
                                   />
-                                  <span className="text-sm text-red-600 font-medium">Yes</span>
+                                  <span className="text-sm text-red-600 font-medium">{t('common.yes')}</span>
                               </label>
                           </div>
                       </div>
@@ -238,7 +238,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
         </label>
         <textarea
           className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 outline-none focus:ring-2 focus:ring-blue-500 resize-none h-24"
-          placeholder="Any other observations..."
+          placeholder={t('checkIn.notesPlaceholder')}
           value={formData.notes}
           onChange={e => setFormData({ ...formData, notes: e.target.value })}
         />
@@ -249,7 +249,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: W
         disabled={isLoading}
         className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98]"
       >
-        {isLoading ? 'Saving...' : 'Save Weekly Record'}
+        {isLoading ? t('common.loading') : t('checkIn.saveRecord')}
       </button>
     </form>
   );

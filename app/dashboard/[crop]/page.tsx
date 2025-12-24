@@ -19,12 +19,13 @@ export default function CropDashboard() {
   const [weeklyRecords, setWeeklyRecords] = useState<WeeklyRecord[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
 
-  const cropRecords = weeklyRecords.filter(r => r.cropType === decodedCrop);
+  const cropRecords = weeklyRecords.filter(r => r.cropType.toLowerCase() === decodedCrop.toLowerCase());
   const latestRecord = cropRecords.length > 0 ? cropRecords[0] : null;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const profileRes = await fetch('/api/profile');
         if (profileRes.ok) {
           const profileData = await profileRes.json();
@@ -35,18 +36,19 @@ export default function CropDashboard() {
             const recordsRes = await fetch(`/api/records/weekly?profileId=${prof.id}`);
             if (recordsRes.ok) {
               const recordsData = await recordsRes.json();
+              console.log(`Fetched ${recordsData.records.length} total records for ${decodedCrop}`);
               setWeeklyRecords(recordsData.records);
             }
           }
         }
       } catch (e) {
-        console.error(e);
+        console.error("Fetch Data Error:", e);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [decodedCrop]); // Refetch if crop type changes in URL
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-black">
@@ -95,7 +97,7 @@ export default function CropDashboard() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black pb-20">
       {/* Header */}
-      <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-30">
+      <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-16 z-30">
         <div className="container mx-auto px-4 py-4 max-w-6xl flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <button 
@@ -174,12 +176,81 @@ export default function CropDashboard() {
                 {activeTab === 'overview' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                         {latestRecord ? (
-                            <RiskDashboard 
-                                assessment={currentRiskAssessment} 
-                                cropType={decodedCrop} 
-                                currentStage="Monitoring" 
-                                checkInHistory={historyAdapter as any[]} 
-                            />
+                            <>
+                                <RiskDashboard 
+                                    assessment={currentRiskAssessment} 
+                                    cropType={decodedCrop} 
+                                    currentStage="Monitoring" 
+                                    checkInHistory={historyAdapter as any[]} 
+                                />
+
+                                {/* Weekly Progress Timeline */}
+                                <div className="bg-white dark:bg-zinc-900 rounded-[40px] p-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <h3 className="text-xl font-black uppercase tracking-tight">Weekly Health Timeline</h3>
+                                        <span className="text-xs font-bold text-zinc-400">PROGRESSION FLOW</span>
+                                    </div>
+
+                                    <div className="relative">
+                                        {/* Vertical Line */}
+                                        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-zinc-100 dark:bg-zinc-800 hidden md:block" />
+
+                                        <div className="space-y-8">
+                                            {cropRecords.map((record, index) => (
+                                                <div key={record.id} className="relative md:pl-16 group">
+                                                    {/* Timeline Bullet */}
+                                                    <div className={`absolute left-0 top-1.5 w-12 h-12 rounded-2xl hidden md:flex items-center justify-center font-black text-xs z-10 transition-transform group-hover:scale-110 ${
+                                                        record.riskLevel === 'Low' ? 'bg-green-100 text-green-600 border-2 border-green-200' :
+                                                        record.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-600 border-2 border-yellow-200' :
+                                                        'bg-red-100 text-red-600 border-2 border-red-200'
+                                                    }`}>
+                                                        W{cropRecords.length - index}
+                                                    </div>
+
+                                                    <div className="bg-zinc-50 dark:bg-zinc-800/50 p-6 rounded-3xl border border-transparent hover:border-green-500/30 transition-all">
+                                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                            <div>
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                                                                        {new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                                    </span>
+                                                                    <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase ${
+                                                                         record.riskLevel === 'Low' ? 'bg-green-500/10 text-green-600' :
+                                                                         record.riskLevel === 'Medium' ? 'bg-yellow-500/10 text-yellow-600' :
+                                                                         'bg-red-500/10 text-red-600'
+                                                                    }`}>
+                                                                        {record.riskLevel} Risk
+                                                                    </span>
+                                                                </div>
+                                                                <h4 className="text-lg font-black text-zinc-900 dark:text-zinc-50">
+                                                                    Crop condition was <span className={
+                                                                        record.cropCondition === 'Good' ? 'text-green-600' :
+                                                                        record.cropCondition === 'Average' ? 'text-yellow-600' :
+                                                                        'text-red-600'
+                                                                    }>{record.cropCondition}</span>
+                                                                </h4>
+                                                                <p className="text-sm text-zinc-500 mt-2 line-clamp-1 italic">
+                                                                    "{record.notes || 'No observation notes recorded for this week.'}"
+                                                                </p>
+                                                            </div>
+                                                            <div className="flex gap-4">
+                                                                <div className="text-center">
+                                                                    <span className="block text-[10px] font-black text-zinc-400 uppercase">Rain</span>
+                                                                    <span className="text-sm font-bold">{record.rainfall}mm</span>
+                                                                </div>
+                                                                <div className="text-center border-l border-zinc-200 dark:border-zinc-700 pl-4">
+                                                                    <span className="block text-[10px] font-black text-zinc-400 uppercase">Temp</span>
+                                                                    <span className="text-sm font-bold text-orange-500">{record.avgTemp}°C</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
                         ) : (
                             <div className="bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[40px] p-20 text-center">
                                 <Activity className="w-16 h-16 text-zinc-300 mx-auto mb-6" />
@@ -201,8 +272,8 @@ export default function CropDashboard() {
                 {activeTab === 'history' && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-xl font-black">{decodedCrop} History</h3>
-                            <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest">{cropRecords.length} Entries</span>
+                            <h3 className="text-xl font-black uppercase tracking-tight">{decodedCrop} Historical Logs</h3>
+                            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">{cropRecords.length} Entries Recorded</span>
                         </div>
                         <div className="grid grid-cols-1 gap-4">
                             {cropRecords.map((record, index) => (
@@ -216,8 +287,8 @@ export default function CropDashboard() {
                                             {record.riskScore}
                                         </div>
                                         <div>
-                                            <h4 className="font-black text-zinc-900 dark:text-zinc-50">Report Week {cropRecords.length - index}</h4>
-                                            <p className="text-sm text-zinc-500 flex items-center gap-2">
+                                            <h4 className="font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-tight">Report Week {cropRecords.length - index}</h4>
+                                            <p className="text-sm text-zinc-500 flex items-center gap-2 font-medium">
                                                 <Calendar className="w-3 h-3" /> {new Date(record.date).toLocaleDateString()}
                                                 <span className="w-1 h-1 bg-zinc-300 rounded-full" />
                                                 {record.cropCondition} Condition
@@ -239,6 +310,7 @@ export default function CropDashboard() {
                     </div>
                 )}
             </div>
+
         </div>
       </div>
     </div>
