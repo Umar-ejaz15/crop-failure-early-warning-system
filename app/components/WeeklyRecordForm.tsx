@@ -4,18 +4,19 @@
 import { useState } from 'react';
 import { CloudRain, Droplets, Bug, FileText, Activity, AlertCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { checkInQuestions } from '../data/cropData';
+import { cropTypes, checkInQuestions } from '../data/cropData';
 
 interface WeeklyRecordFormProps {
   onSubmit: (data: any) => void;
   isLoading?: boolean;
-  cropType?: string;
+  initialCrop?: string;
 }
 
-export default function WeeklyRecordForm({ onSubmit, isLoading, cropType }: WeeklyRecordFormProps) {
+export default function WeeklyRecordForm({ onSubmit, isLoading, initialCrop }: WeeklyRecordFormProps) {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
+    cropType: initialCrop || 'Wheat',
     rainfall: '', // Manual input
     irrigation: 'No',
     cropCondition: 'Good',
@@ -39,7 +40,7 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, cropType }: Week
       }));
   };
 
-  const questions = cropType ? checkInQuestions[cropType] : [];
+  const questions = formData.cropType ? checkInQuestions[formData.cropType] : [];
 
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 rounded-3xl shadow-lg p-6 border border-zinc-200 dark:border-zinc-800 animate-fade-in">
@@ -47,8 +48,31 @@ export default function WeeklyRecordForm({ onSubmit, isLoading, cropType }: Week
         <Activity className="w-5 h-5 text-blue-500" />
         New Weekly Record
       </h3>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* Crop Selection */}
+        <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                Select Crop
+            </label>
+            <div className="flex gap-2 flex-wrap">
+                {cropTypes.map(type => (
+                    <button
+                        key={type}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, cropType: type, responses: {} })}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                            formData.cropType === type 
+                            ? 'bg-green-600 border-green-600 text-white shadow-lg' 
+                            : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600'
+                        }`}
+                    >
+                        {type}
+                    </button>
+                ))}
+            </div>
+        </div>
+
         {/* Date */}
         <div className="md:col-span-2">
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">

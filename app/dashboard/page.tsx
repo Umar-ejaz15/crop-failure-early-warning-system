@@ -1,36 +1,55 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sprout, BarChart3, CloudRain, Calendar, AlertTriangle, History as HistoryIcon, Plus, User } from 'lucide-react';
 import ProfileForm from '../components/ProfileForm';
 import WeeklyRecordForm from '../components/WeeklyRecordForm';
-import MonthlyRecordForm from '../components/MonthlyRecordForm';
 import FailureRecordForm from '../components/FailureRecordForm';
 import RiskDashboard from '../components/RiskDashboard'; // Reusing for visuals
-import { FarmProfile, WeeklyRecord, MonthlyRecord } from '../types/crop';
+import { FarmProfile, WeeklyRecord } from '../types/crop';
 import { checkInQuestions } from '../data/cropData';
 import { analyzeCropRisk } from '../utils/simpleRiskEngine';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<FarmProfile | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'weekly' | 'monthly' | 'history'>('overview');
-  const [showForm, setShowForm] = useState<'weekly' | 'monthly' | 'failure' | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
+  const [showForm, setShowForm] = useState<'weekly' | 'failure' | null>(null);
 
   // Data State
   const [weeklyRecords, setWeeklyRecords] = useState<WeeklyRecord[]>([]);
-  const [lastRecord, setLastRecord] = useState<WeeklyRecord | null>(null);
+  const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
   const [mockWeather, setMockWeather] = useState({ temp: 28 }); // Simulating system data
+
+  const lastRecord = weeklyRecords.length > 0 ? weeklyRecords[0] : null;
+  const viewRecord = selectedRecordId ? weeklyRecords.find(r => r.id === selectedRecordId) : lastRecord;
 
   const fetchProfile = async () => {
     try {
+      setSyncError(null);
       const res = await fetch('/api/profile');
-      if (res.ok) {
-        const data = await res.json();
-        setProfile(data.profile);
+      
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+          const text = await res.text();
+          console.error("Critical Sync Error - Received non-JSON response:", text.substring(0, 100));
+          setSyncError(`System Error: Expected JSON but received ${res.status} ${res.statusText}. Please check Server Logs.`);
+          setLoading(false);
+          return;
       }
-    } catch (e) {
-      console.error(e);
+
+      const data = await res.json();
+      if (res.ok) {
+        setProfile(data.profile);
+      } else {
+        setSyncError(data.error || 'Server rejected synchronization');
+      }
+    } catch (e: any) {
+      console.error("Fetch Profile Error:", e);
+      setSyncError(e.message || 'Network connection error');
     } finally {
       setLoading(false);
     }
@@ -48,7 +67,7 @@ export default function DashboardPage() {
         }));
         setWeeklyRecords(parsedRecords);
         if (parsedRecords.length > 0) {
-            setLastRecord(parsedRecords[0]);
+            // No need to setLastRecord manually anymore as it's derived
         }
       }
     } catch (e) { console.error(e); }
@@ -71,6 +90,9 @@ export default function DashboardPage() {
   const handleWeeklySubmit = async (data: any) => {
     if (!profile) return;
     
+    // Use cropType from form data
+    const selectedCropType = data.cropType;
+
     // Updated Logic: Use Combined Simple Risk Engine
     const assessment = analyzeCropRisk({
         rainfall: data.rainfall,
@@ -79,7 +101,7 @@ export default function DashboardPage() {
         pstSeen: data.pestSeen,
         temp: mockWeather.temp,
         responses: data.responses,
-        questions: checkInQuestions[profile.cropType] || []
+        questions: checkInQuestions[selectedCropType] || []
     });
 
     const payload = {
@@ -91,6 +113,7 @@ export default function DashboardPage() {
         profileId: profile.id,
         avgTemp: mockWeather.temp,
         responses: JSON.stringify(data.responses), 
+        cropType: selectedCropType
     };
 
     try {
@@ -106,17 +129,6 @@ export default function DashboardPage() {
     } catch (e) { console.error(e); }
   };
 
-  const handleMonthlySubmit = async (data: any) => {
-      if (!profile) return;
-      try {
-        const res = await fetch('/api/records/monthly', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ ...data, profileId: profile.id })
-        });
-        if (res.ok) setShowForm(null);
-      } catch (e) { console.error(e); }
-  };
 
   const handleFailureSubmit = async (data: any) => {
       if (!profile) return;
@@ -151,31 +163,46 @@ export default function DashboardPage() {
           water: record.rainfall < 10 ? 8 : 2,
           pest: record.pestSeen ? 7 : 1,
           weather: record.avgTemp && record.avgTemp > 35 ? 7 : 2
-      }
+      },
+      cropType: record.cropType,
+      currentStage: 'Historical'
   }));
 
-  // Convert WeeklyRecord to RiskAssessment for visuals
-  const currentRiskAssessment = lastRecord ? {
-      overallRisk: lastRecord.riskScore,
-      riskLevel: lastRecord.riskLevel.toLowerCase() as any,
+  // Convert viewRecord to RiskAssessment for visuals
+  const currentRiskAssessment = viewRecord ? {
+      overallRisk: viewRecord.riskScore,
+      riskLevel: viewRecord.riskLevel.toLowerCase() as any,
       factors: {
-          water: lastRecord.rainfall < 10 ? 8 : 2,
-          pest: lastRecord.pestSeen ? 7 : 1,
-          weather: lastRecord.avgTemp && lastRecord.avgTemp > 35 ? 7 : 3,
-          growth: lastRecord.cropCondition === 'Poor' ? 9 : lastRecord.cropCondition === 'Average' ? 5 : 1,
+          water: viewRecord.rainfall < 10 ? 8 : 2,
+          pest: viewRecord.pestSeen ? 7 : 1,
+          weather: viewRecord.avgTemp && viewRecord.avgTemp > 35 ? 7 : 3,
+          growth: viewRecord.cropCondition === 'Poor' ? 9 : viewRecord.cropCondition === 'Average' ? 5 : 1,
           disease: 0,
           nutrient: 0
       },
-      alerts: (lastRecord.alerts as unknown as any[]) || [],
-      recommendations: (lastRecord.suggestions as unknown as string[]) || []
+      alerts: (viewRecord.alerts as unknown as any[]) || [],
+      recommendations: (viewRecord.suggestions as unknown as string[]) || []
   } : null;
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-green-600">Loading Farm Data...</div>;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center text-green-600 font-bold bg-zinc-50 dark:bg-black">
+        <div className="flex flex-col items-center gap-4">
+            <Sprout className="w-12 h-12 animate-bounce" />
+            <p className="text-xl animate-pulse">Syncing Farmer Profile...</p>
+        </div>
+    </div>
+  );
 
   if (!profile) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-zinc-950 dark:to-zinc-900 py-12 px-4">
-            <ProfileForm onComplete={handleProfileComplete} />
+        <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-50 dark:bg-black">
+            <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-800 text-center max-w-md">
+                <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold mb-2">Profile Sync Failed</h2>
+                <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+                    {syncError || "We couldn't initialize your farmer profile. Please try logging in again."}
+                </p>
+            </div>
         </div>
     );
   }
@@ -186,11 +213,11 @@ export default function DashboardPage() {
       <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div>
-                <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">{profile.farmerName}'s Farm</h1>
+                <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">{profile.farmerName}'s Portfolio</h1>
                 <p className="text-sm text-zinc-500 flex items-center gap-2">
-                    <Sprout className="w-3 h-3" /> {profile.cropType} 
+                    <User className="w-3 h-3" /> Managed Records
                     <span className="w-1 h-1 bg-zinc-300 rounded-full" />
-                    {profile.location}
+                    {profile.location || 'Location Pending'}
                 </p>
             </div>
             <div className="flex items-center gap-3">
@@ -207,18 +234,111 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 max-w-5xl space-y-8">
+      <div className="flex min-h-[calc(100vh-64px)]">
+        {/* Desktop Sidebar */}
+        <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-6 sticky top-16 h-[calc(100vh-64px)]">
+            <div className="space-y-1">
+                <button 
+                    onClick={() => setActiveTab('overview')}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                        activeTab === 'overview' 
+                        ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' 
+                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                    }`}
+                >
+                    <BarChart3 className="w-5 h-5" />
+                    Portfolio Status
+                </button>
+                <button 
+                    onClick={() => setActiveTab('history')}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                        activeTab === 'history' 
+                        ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' 
+                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                    }`}
+                >
+                    <HistoryIcon className="w-5 h-5" />
+                    Record History
+                </button>
+            </div>
+
+            <div className="mt-auto pt-6 border-t border-zinc-100 dark:border-zinc-800">
+                <button 
+                    onClick={() => setShowForm('weekly')}
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-500/30 hover:scale-[1.02] transition-transform"
+                >
+                    <Plus className="w-4 h-4" />
+                    New Report
+                </button>
+            </div>
+        </aside>
+
+        <div className="flex-1 overflow-y-auto">
+            <div className="container mx-auto px-4 py-6 max-w-4xl space-y-8">
         
+        {/* Crop Portfolio Section */}
+        {activeTab === 'overview' && !selectedRecordId && (
+            <div className="space-y-4 animate-in fade-in duration-500">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-black text-zinc-900 dark:text-zinc-50 uppercase tracking-widest">My Crop Portfolio</h2>
+                    <p className="text-xs font-bold text-zinc-400">SELECT A CROP FOR DETAILS</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {['Wheat', 'Rice', 'Maize'].map((crop) => {
+                        const count = weeklyRecords.filter(r => r.cropType === crop).length;
+                        const latest = weeklyRecords.find(r => r.cropType === crop);
+                        return (
+                            <button 
+                                key={crop}
+                                onClick={() => router.push(`/dashboard/${crop.toLowerCase()}`)}
+                                className="bg-white dark:bg-zinc-900 p-6 rounded-[32px] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:border-green-500 transition-all text-left flex flex-col gap-4 group hover:-translate-y-1"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-2xl flex items-center justify-center">
+                                        <Sprout className="w-6 h-6 text-green-600" />
+                                    </div>
+                                    <span className="text-xs font-black text-zinc-400 group-hover:text-green-600 transition-colors">VIEW ALL →</span>
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50">{crop}</h3>
+                                    <p className="text-sm text-zinc-500 font-medium">{count} Reports Filed</p>
+                                </div>
+                                {latest && (
+                                    <div className={`mt-2 px-3 py-1 rounded-full text-[10px] font-black uppercase inline-block self-start ${
+                                        latest.riskLevel === 'Low' ? 'bg-green-100 text-green-600' :
+                                        latest.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-600' :
+                                        'bg-red-100 text-red-600'
+                                    }`}>
+                                        Latest: {latest.riskLevel} Risk
+                                    </div>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+        )}
+
         {/* Current Status Overview */}
         {activeTab === 'overview' && (
             <div className="space-y-6">
-                {lastRecord ? (
-                    <RiskDashboard 
-                        assessment={currentRiskAssessment} 
-                        cropType={profile.cropType} 
-                        currentStage="Current" 
-                        checkInHistory={historyAdapter as any[]} 
-                    />
+                {viewRecord ? (
+                    <div className="space-y-4">
+                        {selectedRecordId && (
+                            <button 
+                                onClick={() => setSelectedRecordId(null)}
+                                className="text-sm font-medium text-blue-600 flex items-center gap-1 hover:underline mb-2"
+                            >
+                                ← Back to Latest Status
+                            </button>
+                        )}
+                        <RiskDashboard 
+                            assessment={currentRiskAssessment} 
+                            cropType={viewRecord?.cropType || 'Wheat'} 
+                            currentStage={selectedRecordId ? "Historical View" : "Current Status"} 
+                            checkInHistory={historyAdapter as any[]} 
+                        />
+                    </div>
                 ) : (
                     <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 text-center border border-zinc-200 dark:border-zinc-800 shadow-sm">
                         <div className="bg-blue-100 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -237,28 +357,84 @@ export default function DashboardPage() {
             </div>
         )}
 
+        {/* History View */}
+        {activeTab === 'history' && (
+            <div className="space-y-6 animate-in slide-in-from-bottom-4">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Crop History</h3>
+                    <div className="text-sm text-zinc-500">{weeklyRecords.length} Records Found</div>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                    {weeklyRecords.length > 0 ? (
+                        weeklyRecords.map((record, index) => (
+                            <div 
+                                key={record.id} 
+                                onClick={() => {
+                                    setSelectedRecordId(record.id);
+                                    setActiveTab('overview');
+                                }}
+                                className="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center justify-between hover:border-green-500 transition-colors cursor-pointer group"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={`p-3 rounded-xl ${
+                                        record.riskLevel === 'Low' ? 'bg-green-100 text-green-600' :
+                                        record.riskLevel === 'Medium' ? 'bg-yellow-100 text-yellow-600' :
+                                        'bg-red-100 text-red-600'
+                                    }`}>
+                                        <Calendar className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
+                                            {record.cropType} - Week {weeklyRecords.length - index}
+                                            <span className="text-xs font-normal text-zinc-400">
+                                                {new Date(record.date).toLocaleDateString()}
+                                            </span>
+                                        </h4>
+                                        <p className="text-sm text-zinc-500">Risk Score: {record.riskScore}/100</p>
+                                    </div>
+                                </div>
+                                <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase ${
+                                    record.riskLevel === 'Low' ? 'bg-green-500/10 text-green-600' :
+                                    record.riskLevel === 'Medium' ? 'bg-yellow-500/10 text-yellow-600' :
+                                    'bg-red-500/10 text-red-600'
+                                }`}>
+                                    {record.riskLevel} Risk
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-20 text-zinc-500 bg-white dark:bg-zinc-900 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-800">
+                            No records found.
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
+
         {/* Forms Modal Overlay */}
         {showForm && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
                 <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
                     <button 
                         onClick={() => setShowForm(null)}
-                        className="absolute top-4 right-4 z-10 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-lg"
+                        className="absolute top-4 right-4 z-10 bg-white dark:bg-zinc-800 p-2 rounded-full shadow-lg hover:scale-110 transition-transform"
                     >
                         ✕
                     </button>
                     {showForm === 'weekly' && (
                         <WeeklyRecordForm 
                             onSubmit={handleWeeklySubmit} 
-                            cropType={profile.cropType} 
+                            initialCrop={viewRecord?.cropType} 
                         />
                     )}
-                    {showForm === 'monthly' && <MonthlyRecordForm onSubmit={handleMonthlySubmit} />}
                     {showForm === 'failure' && <FailureRecordForm onSubmit={handleFailureSubmit} />}
                 </div>
             </div>
         )}
 
+            </div>
+        </div>
       </div>
 
       {/* Mobile-Friendly Bottom Nav */}
@@ -282,11 +458,11 @@ export default function DashboardPage() {
             </div>
 
             <button 
-                onClick={() => setShowForm('monthly')}
-                className={`flex flex-col items-center gap-1 text-zinc-400 hover:text-zinc-600`}
+                onClick={() => setActiveTab('history')}
+                className={`flex flex-col items-center gap-1 ${activeTab === 'history' ? 'text-green-600 dark:text-green-400' : 'text-zinc-400'}`}
             >
-                <Calendar className="w-6 h-6" />
-                <span className="text-xs font-medium">Monthly</span>
+                <HistoryIcon className="w-6 h-6" />
+                <span className="text-xs font-medium">History</span>
             </button>
         </div>
       </div>

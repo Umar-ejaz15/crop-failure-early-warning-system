@@ -1,80 +1,80 @@
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model FarmProfile {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  farmerName  String
-  location    String
-  cropType    String
-  fieldSize   Float    // in acres or hectares
-  sowingDate  DateTime
-  
+  id         String    @id @default(cuid())
+  userId     String    @unique // Clerk User ID
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  farmerName String
+  location   String?
+  fieldSize  Float? // in acres or hectares
+  sowingDate DateTime?
+
   weeklyRecords  WeeklyRecord[]
   monthlyRecords MonthlyRecord[]
   failureRecords FailureRecord[]
 }
 
 model WeeklyRecord {
-  id             String      @id @default(cuid())
-  createdAt      DateTime    @default(now())
-  date           DateTime
-  
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  date      DateTime
+  cropType  String // Added cropType to record level
+
   // Inputs
-  rainfall       Float       // mm
-  irrigation     String      // "Yes", "No", or details
-  cropCondition  String      // "Good", "Average", "Poor"
-  pestSeen       Boolean
-  responses      String?     // Storing Q&A answers as JSON string
-  notes          String?
-  
+  rainfall      Float // mm
+  irrigation    String // "Yes", "No", or details
+  cropCondition String // "Good", "Average", "Poor"
+  pestSeen      Boolean
+  responses     String? // Storing Q&A answers as JSON string
+  notes         String?
+
   // System Data
-  avgTemp        Float?
-  ndviScore      Float?
-  
+  avgTemp   Float?
+  ndviScore Float?
+
   // Assessment
-  riskScore      Float
-  riskLevel      String      // "Low", "Medium", "High"
-  alerts         String      // JSON string of alerts
-  suggestions    String      // JSON string of suggestions
-  
-  profile        FarmProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId      String
+  riskScore   Float
+  riskLevel   String // "Low", "Medium", "High"
+  alerts      String // JSON string of alerts
+  suggestions String // JSON string of suggestions
+
+  profile   FarmProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
 }
 
 model MonthlyRecord {
-  id             String      @id @default(cuid())
-  createdAt      DateTime    @default(now())
-  monthDate      DateTime    // First day of month usually
-  
-  growthStage    String
-  fertilizer     String?
-  yieldExpected  Float?
-  lossesFaced    String?
-  
-  profile        FarmProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId      String
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  monthDate DateTime // First day of month usually
+
+  growthStage   String
+  fertilizer    String?
+  yieldExpected Float?
+  lossesFaced   String?
+
+  profile   FarmProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
 }
 
 model FailureRecord {
-  id             String      @id @default(cuid())
-  createdAt      DateTime    @default(now())
-  date           DateTime
-  
-  failureType    String      // "Drought", "Pest", "Heat"
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  date      DateTime
+
+  failureType    String // "Drought", "Pest", "Heat"
   lossPercentage Float
   notes          String?
-  
-  profile        FarmProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId      String
+
+  profile   FarmProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String
 }
 
 // Deprecated model

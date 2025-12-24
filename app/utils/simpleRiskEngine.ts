@@ -1,7 +1,6 @@
 
-// app/utils/simpleRiskEngine.ts
-
 import { ChecklistItem, Alert } from '../types/crop';
+import { cropRiskAssessments } from '../data/cropData';
 
 /**
  * Universal Simple Risk Engine
@@ -16,6 +15,7 @@ interface RiskInput {
     // 1. Physical Signals (Question Responses)
     responses: Record<string, string>; // { "q-id": "Yes" }
     questions: ChecklistItem[];
+    cropType?: string;
 
     // 2. Environmental Signals
     rainfall: number;       // mm
@@ -39,12 +39,12 @@ export function analyzeCropRisk(input: RiskInput): RiskOutput {
     const alerts: Alert[] = [];
     const actions: string[] = [];
 
+    const cropMeta = input.cropType ? cropRiskAssessments[input.cropType] : null;
+
     // --- SIGNAL 1: FARMER'S DIRECT OBSERVATIONS (Most Critical) ---
-    // If a farmer explicitly says "Yes" to a known problem question, it's an immediate risk.
     input.questions.forEach(q => {
         if (input.responses[q.id] === 'Yes') {
             const weight = q.riskWeight || 5; 
-            // Normalize weight impact (max 3 points per strong signal)
             const impact = weight >= 8 ? 3 : weight >= 6 ? 2 : 1;
             riskScore += impact;
 
@@ -53,13 +53,12 @@ export function analyzeCropRisk(input: RiskInput): RiskOutput {
                 severity: weight >= 8 ? 'high' : 'medium',
                 category: q.category,
                 message: `Observed issue: ${q.question}`,
-                action: 'Check suggestions for immediate control measures.'
+                action: 'Follow crop-specific management guide.'
             });
         }
     });
 
     // --- SIGNAL 2: WATER STRESS (Rainfall + Irrigation) ---
-    // Rule: Low rain (<10mm) AND No Irrigation = Drought Risk
     if (input.rainfall < 10 && input.irrigation === 'No') {
         riskScore += 3;
         alerts.push({
@@ -75,8 +74,11 @@ export function analyzeCropRisk(input: RiskInput): RiskOutput {
     // --- SIGNAL 3: PEST/DISEASE (General) ---
     if (input.pstSeen) {
         riskScore += 2;
-         // Note: Specific pest details usually come from Questions, so this is a general flag
          actions.push('Scout field in zig-zag pattern to identify specific pest.');
+         if (cropMeta) {
+             const pestRisk = cropMeta.commonRisks.find((r: any) => r.type.toLowerCase().includes('pest') || r.type.toLowerCase().includes('worm') || r.type.toLowerCase().includes('army'));
+             if (pestRisk) actions.push(`Risk Alert: ${pestRisk.type} is common. ${pestRisk.mitigation}`);
+         }
     }
 
     // --- SIGNAL 4: THERMAL STRESS (Temperature) ---
@@ -89,18 +91,18 @@ export function analyzeCropRisk(input: RiskInput): RiskOutput {
             message: 'Heat Stress Warning (>35°C)',
             action: 'Maintain higher water level to cool the crop.'
         });
+        if (cropMeta) {
+             const heatRisk = cropMeta.commonRisks.find((r: any) => r.type.toLowerCase().includes('heat'));
+             if (heatRisk) actions.push(`Mitigation: ${heatRisk.mitigation}`);
+        }
     }
 
     // --- FINAL SCORING & ACTIONS ---
-    
-    // Condition Multiplier
     if (input.cropCondition === 'Poor') riskScore += 2;
     if (input.cropCondition === 'Average') riskScore += 1;
 
-    // Cap Score
     riskScore = Math.min(10, Math.max(1, riskScore));
 
-    // Determine Level
     let level: 'Low' | 'Medium' | 'High' = 'Low';
     if (riskScore >= 7) {
         level = 'High';
@@ -110,6 +112,10 @@ export function analyzeCropRisk(input: RiskInput): RiskOutput {
          actions.push('Monitor field daily for next 3 days.');
     } else {
         actions.push('Continue routine monitoring.');
+    }
+
+    if (cropMeta && riskScore > 5) {
+        actions.push(`Analysis: ${cropMeta.analysis}`);
     }
 
     return {

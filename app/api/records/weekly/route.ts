@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   });
   
   // Parse JSON strings back to objects
-  const parsedRecords = records.map(r => ({
+  const parsedRecords = records.map((r: any) => ({
     ...r,
     alerts: JSON.parse(r.alerts),
     suggestions: JSON.parse(r.suggestions)
@@ -39,7 +39,9 @@ export async function POST(request: NextRequest) {
         riskLevel: body.riskLevel,
         alerts: JSON.stringify(body.alerts),
         suggestions: JSON.stringify(body.suggestions),
-        profileId: body.profileId
+        profileId: body.profileId,
+        responses: body.responses,
+        cropType: body.cropType
       }
     });
     return NextResponse.json({ record });

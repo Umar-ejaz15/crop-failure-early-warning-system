@@ -19,21 +19,25 @@ export const metadata: Metadata = {
   description: "Manual weekly crop monitoring with intelligent risk assessment. Prevent crop failures before they happen.",
 };
 
+import { ClerkProvider } from "@clerk/nextjs";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <LanguageProvider>
-          <Navigation />
-          {children}
-        </LanguageProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <LanguageProvider>
+            <Navigation />
+            {children}
+          </LanguageProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
