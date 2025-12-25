@@ -4,11 +4,7 @@ const isPublicRoute = createRouteMatcher(['/login(.*)', '/signup(.*)', '/', '/ab
 
 const isApiRoute = createRouteMatcher(['/api(.*)']);
 
-export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request) && !isApiRoute(request)) {
-    await auth.protect();
-  }
-});
+export default clerkMiddleware();
 
 export const config = {
   matcher: [
