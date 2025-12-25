@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { Sprout, Target, Users, Heart } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 

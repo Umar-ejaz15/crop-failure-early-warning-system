@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { CheckCircle, ClipboardCheck, BarChart3, Sprout, TrendingUp, Shield, Clock, Zap, Users, Globe } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
