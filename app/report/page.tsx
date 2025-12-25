@@ -20,11 +20,11 @@ export default function ReportPage() {
                 const profileRes = await fetch('/api/profile');
                 if (profileRes.ok) {
                     const profileData = await profileRes.json();
-                    if (profileData?.id) {
-                        const recordsRes = await fetch(`/api/records/weekly?profileId=${profileData.id}`);
+                    if (profileData?.profile?.id) {
+                        const recordsRes = await fetch(`/api/records/weekly?profileId=${profileData.profile.id}`);
                         if (recordsRes.ok) {
                             const data = await recordsRes.json();
-                            setRecords(data);
+                            setRecords(data.records || []);
                         }
                     }
                 }
